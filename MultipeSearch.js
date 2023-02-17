@@ -1,17 +1,22 @@
-
 // ==UserScript==
-// @name         多重搜索MultipleSearch
-// @version      0.3.0
+// @name               多重搜索MultipleSearch
+// @name:zh-CN         多重搜索
+// @name:zh-TW         多重搜索
+// @name:zh-HK         多重搜索
+// @author             Cassius0924
+// @namespace          MultipleSearch
+// @version            0.3.0
+// @description        携带搜索词快捷切换搜索引擎、视频网站或博客网站。Quickly switch between search engines, video sites or blog sites with search words.
 // @description:zh-CN  携带搜索词快捷切换搜索引擎、视频网站或博客网站。
 // @description:zh-TW  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
-// @description:us-EN  Quickly switch between search engines, video sites or blog sites with search words.
-// @author       Cassius0924
-// @match        https://www.bing.com/search*
-// @match        https://www.baidu.com/s?*
-// @match        https://www.google.com/search?*
-// @icon         https://i.imgur.com/oqVZgBY.png
-// @grant        GM_setValue
-// @grant        GM_getValue
+// @description:zh-HK  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
+// @license            MIT
+// @icon               https://i.imgur.com/oqVZgBY.png
+// @match               https://www.bing.com/search*
+// @match               https://www.baidu.com/s?*
+// @match               https://www.google.com/search?*
+// @grant               GM_setValue
+// @grant               GM_getValue
 // ==/UserScript==
 
 (function() {
@@ -272,11 +277,6 @@
                     name: 'DuckDuckGo',
                     url: 'https://duckduckgo.com/?q=',
                     icon: 'https://icon.horse/icon/www.duckduckgo.com'
-                },
-                {
-                    name: '百度开发',
-                    url: 'https://kaifa.baidu.com/searchPage?wd=',
-                    icon: 'https://icon.horse/icon/kaifa.baidu.com'
                 },
                 {
                     name: 'Setting',
