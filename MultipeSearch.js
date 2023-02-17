@@ -7,7 +7,6 @@
 // @description:us-EN  Quickly switch between search engines, video sites or blog sites with search words.
 // @author       Cassius0924
 // @match        https://www.bing.com/search*
-// @match        https://cn.bing.com/search*
 // @match        https://www.baidu.com/s?*
 // @match        https://www.google.com/search?*
 // @icon         https://i.imgur.com/oqVZgBY.png
@@ -434,7 +433,7 @@
 
 
     //组件添加元素
-    function makeElement(searchEngine, index) {
+    function makeElement(searchEngine) {
         let element = document.createElement('div');
         element.className = 'ms-item';
         element.setAttribute('droppable', true)
@@ -697,7 +696,7 @@
             let newSearchEngines = [];
             let setting = GM_getValue('searchEngines').pop();
             let list = document.querySelector('#ms-setting-panel .mss-list');
-            list.childNodes.forEach((item, index) => {
+            list.childNodes.forEach((item ) => {
                 if (item.style.display !== 'none') {
                     let name = item.querySelector('.mss-item-name').value;
                     let url = item.querySelector('.mss-item-url').value;
@@ -792,7 +791,7 @@
             modifier = 'Alt';
         }
         let originalTexts = [];
-        texts.forEach((text, index) => {
+        texts.forEach((text ) => {
             originalTexts.push(text.innerHTML);
         });
         let originalZIndex = '';
