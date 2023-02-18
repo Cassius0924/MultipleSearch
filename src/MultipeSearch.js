@@ -5,7 +5,7 @@
 // @name:zh-HK         多重搜索
 // @author             Cassius0924
 // @namespace          MultipleSearch
-// @version            0.3.1
+// @version            0.4.0
 // @description        携带搜索词快捷切换搜索引擎、视频网站或博客网站。Quickly switch between search engines, video sites or blog sites with search words.
 // @description:zh-CN  携带搜索词快捷切换搜索引擎、视频网站或博客网站。
 // @description:zh-TW  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
