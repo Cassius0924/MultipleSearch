@@ -5,7 +5,7 @@
 // @name:zh-HK         多重搜索
 // @author             Cassius0924
 // @namespace          http://tampermonkey.net/
-// @version            0.4.0
+// @version            0.4.1
 // @description        携带搜索词快捷切换搜索引擎、视频网站或博客网站。Quickly switch between search engines, video sites or blog sites with search words.
 // @description:zh-CN  携带搜索词快捷切换搜索引擎、视频网站或博客网站。
 // @description:zh-TW  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
@@ -118,7 +118,8 @@
                         selectElement('#ms-component').style.top = '52px';
                         selectElement('.dodTBe').style.height = '90px';
                     } else if (scrollTop <= 0) {
-                        selectElement('.sfbg').style.height = '210px';selectElement('.dodTBe').style.height = '125px';
+                        selectElement('.sfbg').style.height = '210px';
+                        selectElement('.dodTBe').style.height = '125px';
                     } else {
                         selectElement('#ms-component').style.top = '60px';
                     }
@@ -638,7 +639,7 @@
             let newSearchEngines = [];
             let setting = GM_getValue('searchEngines').pop();
             let list = selectElement('#ms-setting-panel .mss-list');
-            list.childNodes.forEach((item,index) => {
+            list.childNodes.forEach((item, index) => {
                 if (item.style.display !== 'none') {
                     let name = selectElementAll('.mss-item-name')[index].value;
                     let url = selectElementAll('.mss-item-url')[index].value;
@@ -733,25 +734,23 @@
         document.body.addEventListener('keydown', (event) => {
             event.altKey && (
                 selectElement('#ms-component').classList.add('pin'),
-                [...Array(9)].forEach((_, i) => {
-                    let keyCode = 'Digit' + (i + 1);
-                    texts.forEach((text, index) => {
-                        text.style.width = text.offsetWidth + 'px';
-                        text.innerHTML = `${modifier} + ${index + 1}`;
-                    });
-                    event.code === keyCode && (
-                        event.preventDefault(), //阻止键盘输入
-                        search(urlInputs[i].value)
-                    )
-                }));
+                    [...Array(9)].forEach((_, i) => {
+                        let keyCode = 'Digit' + (i + 1);
+                        texts[i].style.width = texts[i].offsetWidth + 'px';
+                        texts[i].innerHTML = `${modifier} + ${i + 1}`;
+                        event.code === keyCode && (
+                            event.preventDefault(), //阻止键盘输入
+                                search(urlInputs[i].value)
+                        )
+                    }));
         });
         document.body.addEventListener('keyup', (event) => {
             !event.altKey && (
                 selectElement('#ms-component').classList.remove('pin'),
-                texts.forEach((text, index) => {
-                    text.style.width = '';
-                    text.innerHTML = originalTexts[index];
-                })
+                    texts.forEach((text, index) => {
+                        text.style.width = '';
+                        text.innerHTML = originalTexts[index];
+                    })
             )
         });
     }
