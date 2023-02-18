@@ -3,6 +3,8 @@
 // @name:zh-CN         多重搜索
 // @name:zh-TW         多重搜索
 // @name:zh-HK         多重搜索
+// @name:en-US         MultipleSearch
+// @name:en-UK         MultipleSearch
 // @author             Cassius0924
 // @namespace          http://tampermonkey.net/
 // @version            0.4.1
@@ -10,6 +12,8 @@
 // @description:zh-CN  携带搜索词快捷切换搜索引擎、视频网站或博客网站。
 // @description:zh-TW  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
 // @description:zh-HK  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
+// @description:en-US  Quickly switch between search engines, video sites or blog sites with search words.
+// @description:en-UK  Quickly switch between search engines, video sites or blog sites with search words.
 // @license            MIT
 // @icon               https://i.imgur.com/oqVZgBY.png
 // @match               https://www.bing.com/search*
@@ -17,8 +21,10 @@
 // @match               https://www.google.com/search?*
 // @grant               GM_setValue
 // @grant               GM_getValue
+// @
 // ==/UserScript==
 (function () {
+    "use strict";
     //已经适配网页
     const handlers = {
         baidu: {
@@ -58,30 +64,19 @@
                     let head = selectElement('#head');
                     let searchTab = selectElement('#s_tab');
                     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-                    if (scrollTop > 12) {
-                        selectElement('.cr-title').style.marginTop = '20px';
-                    }
-                    if (scrollTop > 0) {
-                        head.style.height = '103px';
-                        searchTab.style.paddingTop = '115px';
-                    } else {
-                        head.style.height = '140px';
-                        searchTab.style.paddingTop = '140px';
-                    }
+                    scrollTop > 12 && (selectElement('.cr-title').style.marginTop = '20px');
+                    scrollTop > 0
+                        ? (head.style.height = '103px', searchTab.style.paddingTop = '115px')
+                        : (head.style.height = '140px', searchTab.style.paddingTop = '140px');
                     toggleMSComponent(scrollTop, 0, 0);
                     turnOffToggleSortMode();
                 }
             },
             //切换排序模式预处理
             preToggleSortMode: function () {
-                if (GM_getValue('sortMode') === 'off') {
-                    selectElement('#head').style.height = '155px';
-                    selectElement('#s_tab').style.paddingTop = '155px';
-                } else {
-                    selectElement('#head').style.height = '140px';
-                    selectElement('#s_tab').style.paddingTop = '140px';
-
-                }
+                GM_getValue('sortMode') === 'off'
+                    ? (selectElement('#head').style.height = '155px', selectElement('#s_tab').style.paddingTop = '155px')
+                    : (selectElement('#head').style.height = '140px', selectElement('#s_tab').style.paddingTop = '140px');
             },
             //获取搜索内容
             getSearchContent: function () {
@@ -128,13 +123,9 @@
                 }
             },
             preToggleSortMode: function () {
-                if (GM_getValue('sortMode') === 'off') {
-                    selectElement('.sfbg').style.height = '240px';
-                    selectElement('.dodTBe').style.height = '140px';
-                } else {
-                    selectElement('.sfbg').style.height = '210px';
-                    selectElement('.dodTBe').style.height = '125px';
-                }
+                GM_getValue('sortMode') === 'off'
+                    ? (selectElement('.sfbg').style.height = '240px', selectElement('.dodTBe').style.height = '140px')
+                    : (selectElement('.sfbg').style.height = '210px', selectElement('.dodTBe').style.height = '125px');
             },
             getSearchContent: function () {
                 return selectElement('.i4ySpb ~ .gLFyf').value;
@@ -172,20 +163,10 @@
                 window.onscroll = function () {
                     let msComponent = selectElement('#ms-component');
                     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-                    if (scrollTop > 60) {
-                        msComponent.style.paddingBlock = '10px';
-                    }
-                    if (scrollTop <= 130) {
-                        msComponent.style.paddingBlock = '0px';
-                    }
-                    if (scrollTop > 110) {
-                        msComponent.style.height = '30px';
-                        msComponent.style.boxShadow = '0 2px 10px 0 rgb(0 0 0 / 10%)';
-                    }
-                    if (scrollTop <= 140) {
-                        msComponent.style.height = '0px';
-                        msComponent.style.boxShadow = '';
-                    }
+                    scrollTop > 60 && (msComponent.style.paddingBlock = '10px');
+                    scrollTop <= 130 && (msComponent.style.paddingBlock = '0px');
+                    scrollTop > 110 && (msComponent.style.height = '30px', msComponent.style.boxShadow = '0 2px 10px 0 rgb(0 0 0 / 10%)');
+                    scrollTop <= 140 && (msComponent.style.height = '0px', msComponent.style.boxShadow = '');
                     toggleMSComponent(scrollTop, 70, 70);
                     turnOffToggleSortMode();
                 }
@@ -193,18 +174,15 @@
             preToggleSortMode: function () {
                 let msComponent = selectElement('#ms-component');
                 let scopeBar = selectElement('.b_scopebar');
-                if (GM_getValue('sortMode') === 'off') {
-                    scopeBar.style.marginTop = '85px';
-                } else {
-                    msComponent.style.marginTop = '75px';
-                    scopeBar.style.marginTop = '70px';
-                }
+                GM_getValue('sortMode') === 'off'
+                    ? scopeBar.style.marginTop = '85px'
+                    : (msComponent.style.marginTop = '75px', scopeBar.style.marginTop = '70px');
             },
             getSearchContent: function () {
                 return selectElement('#sb_form_q').value;
             }
         },
-        cnbing: {   //TODO-2: 中国版bing
+        cnbing: {   //TODO: 中国版bing
             preprocess: function () {
 
             },
@@ -220,27 +198,27 @@
             getSearchContent: function () {
 
             },
-        }
+        },
+        other: {
 
+        }
     }
 
     const hostToHandler = {
         'www.baidu.com': 'baidu',
         'www.google.com': 'google',
         'www.bing.com': 'bing',
-        'cn.bing.com': 'cnbing'
+        'cn.bing.com': 'cnbing',
     };
 
     function getHandler() {
         const host = window.location.host;
-        if (hostToHandler[host] === undefined) {
-            return 'other';
-        }
-        return handlers[hostToHandler[host]];
+        return handlers[hostToHandler[host] || 'other'];
     }
 
     function main() {
         if (GM_getValue('searchEngines') === null) {
+            //TODO: 复选框确认是否使用搜索引擎
             const searchEngines = [
                 {
                     name: '百度',
@@ -430,7 +408,6 @@
         //添加样式
         let allStyle = getAllStyle();
         msComponent.appendChild(allStyle);
-        //添加快捷键
         return msComponent;
     }
 
@@ -510,20 +487,16 @@
     }
 
     function turnOnToggleSortMode() {
-        if (GM_getValue('sortMode') === 'off') {
-            toggleSortMode();
-        }
+        GM_getValue('sortMode') === 'off' && toggleSortMode();
     }
 
     function turnOffToggleSortMode() {
-        if (GM_getValue('sortMode') === 'on') {
-            toggleSortMode();
-        }
+        GM_getValue('sortMode') === 'on' && toggleSortMode();
     }
 
 
     //弹出添加面板
-    function popUpSettingPanel() {
+    function popUpSettingPanel() {  //TODO: 提示信息
         let panel = createElementWithId('div', 'ms-setting-panel');
         let content = createElement('div', 'mss-content');
         let title = createElement('div', 'mss-title', '', '多重搜索设置');
