@@ -18,12 +18,7 @@
 // @grant               GM_setValue
 // @grant               GM_getValue
 // ==/UserScript==
-
-(function() {
-
-
-
-
+(function () {
     //已经适配网页
     const handlers = {
         baidu: {
@@ -217,6 +212,23 @@
             getSearchContent: function () {
                 return document.querySelector('#sb_form_q').value;
             }
+        },
+        cnbing: {   //TODO-中国版bing
+            preprocess: function () {
+
+            },
+            addMSComponent: function () {
+
+            },
+            addScrollListener: function () {
+
+            },
+            preToggleSortMode: function () {
+
+            },
+            getSearchContent: function () {
+
+            },
         }
 
     }
@@ -225,6 +237,7 @@
         'www.baidu.com': 'baidu',
         'www.google.com': 'google',
         'www.bing.com': 'bing',
+        'cn.bing.com': 'cnbing'
     };
 
     function getHandler() {
@@ -696,7 +709,7 @@
             let newSearchEngines = [];
             let setting = GM_getValue('searchEngines').pop();
             let list = document.querySelector('#ms-setting-panel .mss-list');
-            list.childNodes.forEach((item ) => {
+            list.childNodes.forEach((item) => {
                 if (item.style.display !== 'none') {
                     let name = item.querySelector('.mss-item-name').value;
                     let url = item.querySelector('.mss-item-url').value;
@@ -791,7 +804,7 @@
             modifier = 'Alt';
         }
         let originalTexts = [];
-        texts.forEach((text ) => {
+        texts.forEach((text) => {
             originalTexts.push(text.innerHTML);
         });
         let originalZIndex = '';
@@ -842,8 +855,6 @@
     }
 
     main();
-
-
 
 
 })();
