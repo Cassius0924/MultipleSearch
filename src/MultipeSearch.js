@@ -39,11 +39,12 @@
             addMSComponent: function () {
                 let head = selectElement('#head');
                 let div = createElement('div', 'ms-container', 'margin-left: 120px;');
-                let css = "@media screen and (min-width: 1921px) { .ms-container { width: 1055px; margin: 0 auto !important;} }\n #ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
+                let css = "@media screen and (min-width: 1921px) { .ms-container { width: 1055px; margin: 0 auto !important;} }\n #ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}" +
+                    ".pin{z-index: 100}";
                 let style = createElement("style", '', '', css);
                 div.appendChild(style);
                 let msComponent = makeMSComponent();
-                msComponent.style = 'z-index: -100; bottom: 8px; position: absolute;';
+                msComponent.style = 'bottom: 8px; position: absolute;';
                 div.appendChild(msComponent);
                 head.appendChild(div);
                 addShortcutKeys();
@@ -74,16 +75,13 @@
                     selectElement('#head').style.height = '155px';
                     selectElement('#s_tab').style.paddingTop = '155px';
                 } else {
-                    // document.querySelector('#head').style.height = '140px';
                     selectElement('#head').style.height = '140px';
-                    // document.querySelector('#s_tab').style.paddingTop = '140px';
                     selectElement('#s_tab').style.paddingTop = '140px';
 
                 }
             },
             //获取搜索内容
             getSearchContent: function () {
-                // return document.querySelector('#kw').value;
                 return selectElement('#kw').value;
             }
         },
@@ -102,7 +100,7 @@
                 let head = selectElement('.CvDJxb');
                 head.style = "display:flex; flex-direction: column; justify-content: center;";
                 let css = "#ms-component{--ms-margin:165px;margin-left: calc(var(--ms-margin) - 15px);}\n@media(prefers-color-scheme:light){#ms-component{background:#fff !important;}}\n@media(prefers-color-scheme:dark){.ms-item {background: #303134 !important; color:#e8eaed !important; box-shadow: none !important; box-sizing: content-box ;border: 1px solid rgb(95,99,104);}\n.ms-item svg path:nth-child(2){fill: #e8eaed}}\n@media (max-width: 1300px) {#ms-component{--ms-margin: 28px;}}\n@media (min-width: 1121px) and (max-width: 1300px) {#ms-component{--ms-margin:  calc((100vw - 1065px)/2);}}\n @media (min-width: 1459px) and (max-width: 1659px) {#ms-component{--ms-margin: calc(25vw + -200px);}}\n@media (min-width: 1659px) {#ms-component{--ms-margin: 215px;}}\n#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
-                let style = createElement("style", '', '',css);
+                let style = createElement("style", '', '', css);
                 document.head.appendChild(style);
                 let msComponent = makeMSComponent();
                 msComponent.style = 'z-index: -100; bottom: 8px; position: absolute; top: 60px;';
@@ -147,20 +145,21 @@
                 content.style = 'position: relative;z-index:9; top: -70px; transition:top, 0.3s ease-in-out;';
                 let searchBox = selectElement('#sb_form_q');
                 searchBox.onfocus = () => {
-                    document.querySelector('#ms-component').style.zIndex = -10;
+                    selectElement('#ms-component').classList.remove('top');
                 };
                 searchBox.onblur = () => {
-                    document.querySelector('#ms-component').style.zIndex = 100;
+                    selectElement('#ms-component').classList.add('top');
                 }
             },
             addMSComponent: function () {
                 let head = selectElement('#b_header');
                 let body = selectElement('.b_respl');
-                let css = "#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s} #ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
-                let style = createElement("style", '','', css);
+                let css = ".ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s} #ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;} .top{z-index:100} .pin{z-index: 1000;}";
+                let style = createElement("style", '', '', css);
                 document.head.appendChild(style);
                 let msComponent = makeMSComponent();
-                msComponent.style = 'z-index: 100; position: sticky; top: 0; height: 0px; margin-top:75px; padding-left: 150px;';
+                msComponent.classList.add('top');
+                msComponent.style = 'position: sticky; top: 0; height: 0px; margin-top:75px; padding-left: 150px;';
                 let scopeBar = selectElement('.b_scopebar');
                 scopeBar.style = 'margin-top: 70px; transition:all, 0.3s ease-in-out;';
                 body.insertBefore(msComponent, head);
@@ -170,7 +169,6 @@
                 window.onscroll = function () {
                     let msComponent = selectElement('#ms-component');
                     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-                    msComponent.style.zIndex = 100;
                     if (scrollTop > 60) {
                         msComponent.style.paddingBlock = '10px';
                     }
@@ -485,7 +483,6 @@
 
     //切换排序模式
     function toggleSortMode() {
-        // let component = document.querySelector('#ms-component');
         let component = selectElement('#ms-component')
         let handler = getHandler();
         handler.preToggleSortMode();
@@ -639,11 +636,11 @@
             let newSearchEngines = [];
             let setting = GM_getValue('searchEngines').pop();
             let list = selectElement('#ms-setting-panel .mss-list');
-            list.childNodes.forEach((item) => {
+            list.childNodes.forEach((item,index) => {
                 if (item.style.display !== 'none') {
-                    let name = selectElement('.mss-item-name').value;
-                    let url = selectElement('.mss-item-url').value;
-                    let icon = selectElement('.mss-item-icon_').value;
+                    let name = selectElementAll('.mss-item-name')[index].value;
+                    let url = selectElementAll('.mss-item-url')[index].value;
+                    let icon = selectElementAll('.mss-item-icon_')[index].value;
                     newSearchEngines.push({
                         name: name,
                         url: url,
@@ -679,6 +676,7 @@
         return createElement('style', '', '', css);
     }
 
+    // 展开或折叠组件
     function toggleMSComponent(scrollTop, expandCritical, collapseCritical) {
         let items = selectElementAll('.ms-item');
         let sortIcons = selectElementAll('.ms-sort-icon');
@@ -730,25 +728,25 @@
         texts.forEach((text) => {
             originalTexts.push(text.innerHTML);
         });
-        let originalZIndex = '';
         document.body.addEventListener('keydown', (event) => {
             event.altKey && (
-                originalZIndex = selectElement('#ms-component').style.zIndex,
-                    [...Array(9)].forEach((_, i) => {
-                        let keyCode = 'Digit' + (i + 1);
-                        selectElement('#ms-component').style.zIndex = '1000';
-                        texts.forEach((text, index) => {
-                            text.style.width = text.offsetWidth + 'px';
-                            text.innerHTML = `${modifier} + ${index + 1}`;
-                        });
-                        event.code === keyCode && (
-                            selectElement('#ms-component').style.zIndex = originalZIndex, search(urlInputs[i].value)
-                        )
-                    }));
+                selectElement('#ms-component').classList.add('pin'),
+                [...Array(9)].forEach((_, i) => {
+                    let keyCode = 'Digit' + (i + 1);
+                    texts.forEach((text, index) => {
+                        text.style.width = text.offsetWidth + 'px';
+                        text.innerHTML = `${modifier} + ${index + 1}`;
+                    });
+                    event.code === keyCode && (
+                        event.preventDefault(), //阻止键盘输入
+                        search(urlInputs[i].value)
+                    )
+                }));
         });
         document.body.addEventListener('keyup', (event) => {
             !event.altKey && (
-                selectElement('#ms-component').style.zIndex = originalZIndex, texts.forEach((text, index) => {
+                selectElement('#ms-component').classList.remove('pin'),
+                texts.forEach((text, index) => {
                     text.style.width = '';
                     text.innerHTML = originalTexts[index];
                 })
