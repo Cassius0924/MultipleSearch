@@ -27,10 +27,14 @@
                 let head = selectElement('#head');
                 head.style = "height: 140px; transition:height 0.3s ease-in-out;";
                 let div = createElement('div', 'ms-cover', 'background-color: white; height: 50px');
-                div.appendChild(selectElement('#head .head_wrapper'));
-                div.appendChild(selectElement('#u'));
-                div.appendChild(selectElement('#u1'));
-                div.appendChild(selectElement('#head .search-keyboard-toast'));
+                let hw = selectElement('#head .head_wrapper');
+                let u = selectElement('#u');
+                let u1 = selectElement('#u1');
+                let skt = selectElement('#head .search-keyboard-toast');
+                div.appendChild(hw);
+                div.appendChild(u);
+                div.appendChild(u1);
+                div.appendChild(skt);
                 head.appendChild(div);
                 selectElement('#s_tab').style = 'padding-top: 140px; transition: all 0.3s ease-in-out;';
                 //TODO-1: 解决输入框无法使用快捷键的问题，难搞
@@ -39,8 +43,7 @@
             addMSComponent: function () {
                 let head = selectElement('#head');
                 let div = createElement('div', 'ms-container', 'margin-left: 120px;');
-                let css = "@media screen and (min-width: 1921px) { .ms-container { width: 1055px; margin: 0 auto !important;} }\n #ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}" +
-                    ".pin{z-index: 100}";
+                let css = "@media screen and (min-width: 1921px) { .ms-container { width: 1055px; margin: 0 auto !important;} }\n #ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
                 let style = createElement("style", '', '', css);
                 div.appendChild(style);
                 let msComponent = makeMSComponent();
@@ -99,11 +102,11 @@
             addMSComponent: function () {
                 let head = selectElement('.CvDJxb');
                 head.style = "display:flex; flex-direction: column; justify-content: center;";
-                let css = "#ms-component{--ms-margin:165px;margin-left: calc(var(--ms-margin) - 15px);}\n@media(prefers-color-scheme:light){#ms-component{background:#fff !important;}}\n@media(prefers-color-scheme:dark){.ms-item {background: #303134 !important; color:#e8eaed !important; box-shadow: none !important; box-sizing: content-box ;border: 1px solid rgb(95,99,104);}\n.ms-item svg path:nth-child(2){fill: #e8eaed}}\n@media (max-width: 1300px) {#ms-component{--ms-margin: 28px;}}\n@media (min-width: 1121px) and (max-width: 1300px) {#ms-component{--ms-margin:  calc((100vw - 1065px)/2);}}\n @media (min-width: 1459px) and (max-width: 1659px) {#ms-component{--ms-margin: calc(25vw + -200px);}}\n@media (min-width: 1659px) {#ms-component{--ms-margin: 215px;}}\n#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
+                let css = "#ms-component{--ms-margin:165px;margin-left: calc(var(--ms-margin) - 15px);}\n@media(prefers-color-scheme:light){#ms-component{background:#fff !important;}}\n@media(prefers-color-scheme:dark){.ms-item {background: #303134 !important; color:#e8eaed !important; box-shadow: none !important; box-sizing: content-box ;border: 1px solid rgb(95,99,104);}\n.ms-item svg path:nth-child(2){fill: #e8eaed}}\n@media (max-width: 1300px) {#ms-component{--ms-margin: 28px;}}\n@media (min-width: 1121px) and (max-width: 1300px) {#ms-component{--ms-margin:  calc((100vw - 1065px)/2);}}\n @media (min-width: 1459px) and (max-width: 1659px) {#ms-component{--ms-margin: calc(25vw + -200px);}}\n@media (min-width: 1659px) {#ms-component{--ms-margin: 215px;}}\n#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;} .pin{z-index: 1000}";
                 let style = createElement("style", '', '', css);
                 document.head.appendChild(style);
                 let msComponent = makeMSComponent();
-                msComponent.style = 'z-index: -100; bottom: 8px; position: absolute; top: 60px;';
+                msComponent.style = 'bottom: 8px; position: absolute; top: 60px;';
                 head.appendChild(msComponent);
                 addShortcutKeys();
             },
