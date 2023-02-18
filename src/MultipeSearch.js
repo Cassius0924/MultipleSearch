@@ -5,7 +5,7 @@
 // @name:zh-HK         多重搜索
 // @author             Cassius0924
 // @namespace          MultipleSearch
-// @version            0.3.0
+// @version            0.3.1
 // @description        携带搜索词快捷切换搜索引擎、视频网站或博客网站。Quickly switch between search engines, video sites or blog sites with search words.
 // @description:zh-CN  携带搜索词快捷切换搜索引擎、视频网站或博客网站。
 // @description:zh-TW  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
@@ -24,31 +24,23 @@
         baidu: {
             //网页预处理
             preprocess: function () {
-                let head = document.querySelector('#head');
+                let head = selectElement('#head');
                 head.style = "height: 140px; transition:height 0.3s ease-in-out;";
-                let div = document.createElement('div');
-                div.className = 'ms-cover';
-                div.style = "background-color: white; height: 50px"
-                let headWrapper = document.querySelector('#head .head_wrapper');
-                let u = document.querySelector('#u');
-                let u1 = document.querySelector('#u1');
-                let searchKeyboardToast = document.querySelector('#head .search-keyboard-toast');
-                div.appendChild(headWrapper);
-                div.appendChild(u);
-                div.appendChild(u1);
-                div.appendChild(searchKeyboardToast);
+                let div = createElement('div', 'ms-cover', 'background-color: white; height: 50px');
+                div.appendChild(selectElement('#head .head_wrapper'));
+                div.appendChild(selectElement('#u'));
+                div.appendChild(selectElement('#u1'));
+                div.appendChild(selectElement('#head .search-keyboard-toast'));
                 head.appendChild(div);
-                document.querySelector('#s_tab').style = 'padding-top: 140px; transition: all 0.3s ease-in-out;';
+                selectElement('#s_tab').style = 'padding-top: 140px; transition: all 0.3s ease-in-out;';
+                //TODO-1: 解决输入框无法使用快捷键的问题，难搞
             },
             //添加多重搜索组件
             addMSComponent: function () {
-                let head = document.querySelector('#head');
-                let div = document.createElement('div');
-                div.className = 'ms-container';
-                div.style.marginLeft = '120px';
+                let head = selectElement('#head');
+                let div = createElement('div', 'ms-container', 'margin-left: 120px;');
                 let css = "@media screen and (min-width: 1921px) { .ms-container { width: 1055px; margin: 0 auto !important;} }\n #ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
-                let style = document.createElement("style");
-                style.innerHTML = css;
+                let style = createElement("style", '', '', css);
                 div.appendChild(style);
                 let msComponent = makeMSComponent();
                 msComponent.style = 'z-index: -100; bottom: 8px; position: absolute;';
@@ -59,13 +51,12 @@
             //添加滚动监听
             addScrollListener: function () {
                 window.onscroll = function () {
-                    let head = document.querySelector('#head');
-                    let searchTab = document.querySelector('#s_tab');
+                    let head = selectElement('#head');
+                    let searchTab = selectElement('#s_tab');
                     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                     if (scrollTop > 12) {
-                        document.querySelector('.cr-title').style.marginTop = '20px';
+                        selectElement('.cr-title').style.marginTop = '20px';
                     }
-
                     if (scrollTop > 0) {
                         head.style.height = '103px';
                         searchTab.style.paddingTop = '115px';
@@ -80,36 +71,38 @@
             //切换排序模式预处理
             preToggleSortMode: function () {
                 if (GM_getValue('sortMode') === 'off') {
-                    document.querySelector('#head').style.height = '155px';
-                    document.querySelector('#s_tab').style.paddingTop = '155px';
+                    selectElement('#head').style.height = '155px';
+                    selectElement('#s_tab').style.paddingTop = '155px';
                 } else {
-                    document.querySelector('#head').style.height = '140px';
-                    document.querySelector('#s_tab').style.paddingTop = '140px';
+                    // document.querySelector('#head').style.height = '140px';
+                    selectElement('#head').style.height = '140px';
+                    // document.querySelector('#s_tab').style.paddingTop = '140px';
+                    selectElement('#s_tab').style.paddingTop = '140px';
 
                 }
             },
             //获取搜索内容
             getSearchContent: function () {
-                return document.querySelector('#kw').value;
+                // return document.querySelector('#kw').value;
+                return selectElement('#kw').value;
             }
         },
         google: {
             preprocess: function () {
-                let bg = document.querySelector('.sfbg');
+                let bg = selectElement('.sfbg');
                 setTimeout(() => {
                     bg.style = 'height:190px; z-index:-100;';
                     bg.style.transition = 'height 0.3s ease-in-out';
                 }, 0);
-                let dodTBe = document.querySelector('.dodTBe');
+                let dodTBe = selectElement('.dodTBe');
                 dodTBe.style.height = '125px';
                 dodTBe.style.transition = 'all, 0.3s ease-in-out';
             },
             addMSComponent: function () {
-                let head = document.querySelector('.CvDJxb');
+                let head = selectElement('.CvDJxb');
                 head.style = "display:flex; flex-direction: column; justify-content: center;";
                 let css = "#ms-component{--ms-margin:165px;margin-left: calc(var(--ms-margin) - 15px);}\n@media(prefers-color-scheme:light){#ms-component{background:#fff !important;}}\n@media(prefers-color-scheme:dark){.ms-item {background: #303134 !important; color:#e8eaed !important; box-shadow: none !important; box-sizing: content-box ;border: 1px solid rgb(95,99,104);}\n.ms-item svg path:nth-child(2){fill: #e8eaed}}\n@media (max-width: 1300px) {#ms-component{--ms-margin: 28px;}}\n@media (min-width: 1121px) and (max-width: 1300px) {#ms-component{--ms-margin:  calc((100vw - 1065px)/2);}}\n @media (min-width: 1459px) and (max-width: 1659px) {#ms-component{--ms-margin: calc(25vw + -200px);}}\n@media (min-width: 1659px) {#ms-component{--ms-margin: 215px;}}\n#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
-                let style = document.createElement("style");
-                style.innerHTML = css;
+                let style = createElement("style", '', '',css);
                 document.head.appendChild(style);
                 let msComponent = makeMSComponent();
                 msComponent.style = 'z-index: -100; bottom: 8px; position: absolute; top: 60px;';
@@ -120,14 +113,14 @@
                 window.onscroll = function () {
                     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                     if (scrollTop > 120) {
-                        document.querySelector('.sfbg').style.height = '135px';
-                        document.querySelector('#ms-component').style.top = '52px';
-                        document.querySelector('.dodTBe').style.height = '90px';
+                        selectElement('.sfbg').style.height = '135px';
+                        selectElement('#ms-component').style.top = '52px';
+                        selectElement('.dodTBe').style.height = '90px';
                     } else if (scrollTop <= 0) {
-                        document.querySelector('.sfbg').style.height = '210px';
-                        document.querySelector('.dodTBe').style.height = '125px';
+                        selectElement('.sfbg').style.height = '210px';
+                        selectElement('.dodTBe').style.height = '125px';
                     } else {
-                        document.querySelector('#ms-component').style.top = '60px';
+                        selectElement('#ms-component').style.top = '60px';
                     }
                     toggleMSComponent(scrollTop, 120, 0);
                     turnOffToggleSortMode()
@@ -135,24 +128,24 @@
             },
             preToggleSortMode: function () {
                 if (GM_getValue('sortMode') === 'off') {
-                    document.querySelector('.sfbg').style.height = '240px';
-                    document.querySelector('.dodTBe').style.height = '140px';
+                    selectElement('.sfbg').style.height = '240px';
+                    selectElement('.dodTBe').style.height = '140px';
                 } else {
-                    document.querySelector('.sfbg').style.height = '210px';
-                    document.querySelector('.dodTBe').style.height = '125px';
+                    selectElement('.sfbg').style.height = '210px';
+                    selectElement('.dodTBe').style.height = '125px';
                 }
             },
             getSearchContent: function () {
-                return document.querySelector('.i4ySpb ~ .gLFyf').value;
+                return selectElement('.i4ySpb ~ .gLFyf').value;
             }
         },
         bing: {
             preprocess: function () {
-                let head = document.querySelector('#b_header');
+                let head = selectElement('#b_header');
                 head.style = 'transform: translateY(-75px);z-index: 10; transition:all, 0.3s ease-in-out;';
-                let content = document.querySelector('#b_content');
+                let content = selectElement('#b_content');
                 content.style = 'position: relative;z-index:9; top: -70px; transition:top, 0.3s ease-in-out;';
-                let searchBox = document.querySelector('#sb_form_q');
+                let searchBox = selectElement('#sb_form_q');
                 searchBox.onfocus = () => {
                     document.querySelector('#ms-component').style.zIndex = -10;
                 };
@@ -161,22 +154,21 @@
                 }
             },
             addMSComponent: function () {
-                let head = document.querySelector('#b_header');
-                let body = document.querySelector('.b_respl');
-                let css = "#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
-                let style = document.createElement("style");
-                style.innerHTML = css;
+                let head = selectElement('#b_header');
+                let body = selectElement('.b_respl');
+                let css = "#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s} #ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}";
+                let style = createElement("style", '','', css);
                 document.head.appendChild(style);
                 let msComponent = makeMSComponent();
                 msComponent.style = 'z-index: 100; position: sticky; top: 0; height: 0px; margin-top:75px; padding-left: 150px;';
-                let scopeBar = document.querySelector('.b_scopebar');
+                let scopeBar = selectElement('.b_scopebar');
                 scopeBar.style = 'margin-top: 70px; transition:all, 0.3s ease-in-out;';
                 body.insertBefore(msComponent, head);
                 addShortcutKeys();
             },
             addScrollListener: function () {
                 window.onscroll = function () {
-                    let msComponent = document.querySelector('#ms-component');
+                    let msComponent = selectElement('#ms-component');
                     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                     msComponent.style.zIndex = 100;
                     if (scrollTop > 60) {
@@ -198,22 +190,20 @@
                 }
             },
             preToggleSortMode: function () {
-                let msComponent = document.querySelector('#ms-component');
-                let scopeBar = document.querySelector('.b_scopebar');
+                let msComponent = selectElement('#ms-component');
+                let scopeBar = selectElement('.b_scopebar');
                 if (GM_getValue('sortMode') === 'off') {
-//                    msComponent.style.marginTop = '90px'
                     scopeBar.style.marginTop = '85px';
                 } else {
                     msComponent.style.marginTop = '75px';
                     scopeBar.style.marginTop = '70px';
                 }
-
             },
             getSearchContent: function () {
-                return document.querySelector('#sb_form_q').value;
+                return selectElement('#sb_form_q').value;
             }
         },
-        cnbing: {   //TODO-中国版bing
+        cnbing: {   //TODO-2: 中国版bing
             preprocess: function () {
 
             },
@@ -429,9 +419,7 @@
 
 
     function makeMSComponent() {
-        let msComponent = document.createElement('div');
-        let allStyle = getAllStyle();
-        msComponent.id = 'ms-component';
+        let msComponent = createElementWithId('div', 'ms-component');
         let searchEngines = GM_getValue('searchEngines');
         //添加元素
         searchEngines.forEach((searchEngine, index) => {
@@ -439,6 +427,7 @@
             msComponent.appendChild(element);
         });
         //添加样式
+        let allStyle = getAllStyle();
         msComponent.appendChild(allStyle);
         //添加快捷键
         return msComponent;
@@ -447,8 +436,7 @@
 
     //组件添加元素
     function makeElement(searchEngine) {
-        let element = document.createElement('div');
-        element.className = 'ms-item';
+        let element = createElement('div', 'ms-item');
         element.setAttribute('droppable', true)
         if (searchEngine.name === 'Setting') {
             element.style.justifyContent = 'center';
@@ -474,25 +462,17 @@
             element.onclick = function () {
                 search(searchEngine.url);
             }
-            let div = document.createElement('div');
-            div.className = 'ms-item-content';
+            let div = createElement('div', 'ms-item-content');
             div.setAttribute('droppable', true);
-            let sortIcon = document.createElement('div');
-            sortIcon.className = 'ms-sort-icon';
+            let sortIcon = createElement('div', 'ms-sort-icon')
             sortIcon.setAttribute('droppable', true);
-            let img = document.createElement('img');
-            img.className = 'ms-icon';
+            let img = createElement('img', 'ms-icon');
             img.src = searchEngine.icon;
             img.draggable = '';
             img.setAttribute('droppable', true);
-            let text = document.createElement('span');
-            text.className = 'ms-text';
-            text.innerText = searchEngine.name;
+            let text = createElement('span', 'ms-text', '', searchEngine.name)
             text.setAttribute('droppable', true);
-            let url = document.createElement('input');
-            url.className = 'ms-url';
-            url.value = searchEngine.url;
-            url.style.display = 'none';
+            let url = createInput('', 'ms-url', 'display:none', searchEngine.url);
             addElementDragListener(element);
             div.appendChild(sortIcon);
             div.appendChild(img);
@@ -505,7 +485,8 @@
 
     //切换排序模式
     function toggleSortMode() {
-        let component = document.querySelector('#ms-component');
+        // let component = document.querySelector('#ms-component');
+        let component = selectElement('#ms-component')
         let handler = getHandler();
         handler.preToggleSortMode();
         if (GM_getValue('sortMode') === 'off') {
@@ -543,19 +524,12 @@
 
     //弹出添加面板
     function popUpSettingPanel() {
-        let panel = document.createElement('div');
-        panel.id = 'ms-setting-panel';
-        let content = document.createElement('div');
-        content.className = 'mss-content';
-        let title = document.createElement('div');
-        title.className = 'mss-title';
-        title.innerText = '多重搜索设置';
-        let container = document.createElement('div');
-        container.className = 'mss-container';
-        let left = document.createElement('div');
-        left.className = 'mss-left';
-        let list = document.createElement('div');
-        list.className = 'mss-list';
+        let panel = createElementWithId('div', 'ms-setting-panel');
+        let content = createElement('div', 'mss-content');
+        let title = createElement('div', 'mss-title', '', '多重搜索设置');
+        let container = createElement('div', 'mss-container');
+        let left = createElement('div', 'mss-left');
+        let list = createElement('div', 'mss-list');
 
         function listSearchEngines() {
             list.innerHTML = '';
@@ -569,30 +543,17 @@
 
         function appendItem(searchEngine, index) {
             index = index ? index : list.childNodes.length;
-            let item = document.createElement('div');
-            item.className = 'mss-item';
-            let icon = document.createElement('img');
-            icon.className = 'mss-item-icon';
+            let item = createElement('div', 'mss-item');
+            let icon = createElement('img', 'mss-item-icon');
             icon.src = searchEngine.icon;
             icon.addEventListener('click', () => {
                 popUpIconPanel(searchEngine, index);
             });
-            let center = document.createElement('div');
-            center.className = 'mss-center';
-            let name = document.createElement('input');
-            name.className = 'mss-item-name';
-            name.placeholder = '名称';
-            name.value = searchEngine.name;
-            let url = document.createElement('input');
-            url.className = 'mss-item-url';
-            url.placeholder = '网址';
-            url.value = searchEngine.url;
-            let icon_ = document.createElement('input');
-            icon_.className = 'mss-item-icon_';
-            icon_.value = searchEngine.icon;
-            let delBtn = document.createElement('button');
-            delBtn.className = 'mss-del-btn';
-            delBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M7 4V2h10v2h5v2h-2v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6H2V4h5zM6 6v14h12V6H6zm3 3h2v8H9V9zm4 0h2v8h-2V9z"/></svg>';
+            let center = createElement('div', 'mss-center');
+            let name = createInput('', 'mss-item-name', '', searchEngine.name, '名称');
+            let url = createInput('', 'mss-item-url', '', searchEngine.url, '网址');
+            let icon_ = createInput('', 'mss-item-icon_', '', searchEngine.icon);
+            let delBtn = createElement('button', 'mss-del-btn', '', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M7 4V2h10v2h5v2h-2v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6H2V4h5zM6 6v14h12V6H6zm3 3h2v8H9V9zm4 0h2v8h-2V9z"/></svg>`);
             delBtn.addEventListener('click', (e) => {
                 list.childNodes[index].style.display = 'none';
             });
@@ -606,39 +567,24 @@
         }
 
         function popUpIconPanel(searchEngine, index) {
-            let panel = document.createElement('div');
-            panel.className = 'mss-icon-panel';
-            let content = document.createElement('div');
-            content.className = 'mss-icon-content';
-            let title = document.createElement('div');
-            title.className = 'mss-icon-title';
-            title.innerText = '修改图标';
-            let container = document.createElement('div');
-            container.className = 'mss-icon-container';
-            let form = document.createElement('form');
-            form.className = 'mss-icon-form';
-            let iconInput = document.createElement('input');
-            iconInput.className = 'mss-icon-input';
-            iconInput.placeholder = '图标地址（留空自动生成）';
-            iconInput.value = document.querySelectorAll('#ms-setting-panel .mss-item-icon_')[index].value;
-            let close = document.createElement('div');
-            close.className = 'mss-icon-close';
-            close.innerHTML = `<svg class='mss-icon-editor-close-icon' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+            let panel = createElement('div', 'mss-icon-panel');
+            let content = createElement('div', 'mss-icon-content');
+            let title = createElement('div', 'mss-icon-title', '', '修改图标');
+            let container = createElement('div', 'mss-icon-container');
+            let form = createElement('form', 'mss-icon-form');
+            let iconInput = createInput('', 'mss-icon-input', '', selectElementAll('#ms-setting-panel .mss-item-icon_')[index].value, '图标地址（留空自动生成）');
+            let close = createElement('div', 'mss-icon-close', '', `<svg class=\'mss-icon-editor-close-icon\' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`);
             close.addEventListener('click', () => {
                 panel.remove();
             });
-            let cancelBtn = document.createElement('button');
-            cancelBtn.className = 'mss-icon-cancel-btn';
-            cancelBtn.innerText = '取消';
+            let cancelBtn = createElement('button', 'mss-icon-cancel-btn', '', '取消');
             cancelBtn.addEventListener('click', (e) => {
                 panel.remove();
             });
-            let confirmBtn = document.createElement('button');
-            confirmBtn.className = 'mss-icon-confirm-btn';
-            confirmBtn.innerText = '确定';
+            let confirmBtn = createElement('button', 'mss-icon-confirm-btn', '', '确定');
             confirmBtn.addEventListener('click', (e) => {
-                document.querySelectorAll('#ms-setting-panel .mss-item-icon')[index].src = iconInput.value;
-                document.querySelectorAll('#ms-setting-panel .mss-item-icon_')[index].value = iconInput.value;
+                selectElementAll('#ms-setting-panel .mss-item-icon')[index].src = iconInput.value;
+                selectElementAll('#ms-setting-panel .mss-item-icon_')[index].value = iconInput.value;
                 panel.remove();
             });
             form.appendChild(iconInput);
@@ -653,22 +599,12 @@
         }
 
         listSearchEngines();
-        let right = document.createElement('div');
-        right.className = 'mss-right';
-        let form = document.createElement('form');
-        form.className = 'mss-form';
-        let nameInput = document.createElement('input');
-        nameInput.className = 'mss-name-input';
-        nameInput.placeholder = '搜索引擎名称';
-        let urlInput = document.createElement('input');
-        urlInput.className = 'mss-url-input';
-        urlInput.placeholder = '搜索引擎地址';
-        let iconInput = document.createElement('input');
-        iconInput.className = 'mss-icon-input';
-        iconInput.placeholder = '图标地址（留空自动生成）';
-        let addBtn = document.createElement('button');
-        addBtn.className = 'mss-add-btn';
-        addBtn.innerText = '添加';
+        let right = createElement('div', 'mss-right');
+        let form = createElement('form', 'mss-form');
+        let nameInput = createInput('', 'mss-name-input', '', '', '搜索引擎名称');
+        let urlInput = createInput('', 'mss-url-input', '', '', '搜索引擎地址');
+        let iconInput = createInput('', 'mss-icon-input', '', '', '图标地址（留空自动生成）');
+        let addBtn = createElement('button', 'mss-add-btn', '', '添加');
         addBtn.addEventListener('click', (e) => {
             e.preventDefault();
             let name = nameInput.value;
@@ -690,30 +626,24 @@
                 appendItem(searchEngine);
             }
         });
-        let close = document.createElement('div');
-        close.className = 'mss-close';
-        close.innerHTML = `<svg class='mss-close-icon' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+        let close = createElement('div', 'mss-icon-close', '', `<svg class='mss-close-icon' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`);
         close.addEventListener('click', () => {
             panel.remove();
         });
-        let cancelBtn = document.createElement('button');
-        cancelBtn.className = 'mss-cancel-btn';
-        cancelBtn.innerText = '取消';
+        let cancelBtn = createElement('button', 'mss-icon-cancel-btn', '', '取消');
         cancelBtn.addEventListener('click', (e) => {
             panel.remove();
         });
-        let confirmBtn = document.createElement('button');
-        confirmBtn.className = 'mss-button-btn';
-        confirmBtn.innerText = '确定';
+        let confirmBtn = createElement('button', 'mss-icon-confirm-btn', '', '确定');
         confirmBtn.addEventListener('click', (e) => {
             let newSearchEngines = [];
             let setting = GM_getValue('searchEngines').pop();
-            let list = document.querySelector('#ms-setting-panel .mss-list');
+            let list = selectElement('#ms-setting-panel .mss-list');
             list.childNodes.forEach((item) => {
                 if (item.style.display !== 'none') {
-                    let name = item.querySelector('.mss-item-name').value;
-                    let url = item.querySelector('.mss-item-url').value;
-                    let icon = item.querySelector('.mss-item-icon_').value;
+                    let name = selectElement('.mss-item-name').value;
+                    let url = selectElement('.mss-item-url').value;
+                    let icon = selectElement('.mss-item-icon_').value;
                     newSearchEngines.push({
                         name: name,
                         url: url,
@@ -745,16 +675,15 @@
 
 
     function getAllStyle() {
-        let allStyle = document.createElement('style');
-        allStyle.innerHTML = `#ms-component {background: white;border-radius: 10px;display: flex;flex-wrap: nowrap;flex-direction: row; transition: padding-block 0.3s ease-in-out 0s, box-shadow 0.3s ease-in-out 0s, height 0.3s ease-in-out, 0s margin-top 0.3s ease-in-out;}  .ms-container {margin-left: 120px;}  .ms-item {height: 48.5px;overflow-y: hidden;min-width: 30px;margin-inline: 10px;display: flex;padding: 6px 10px;flex-direction: column;align-items: center;justify-content: flex-end;cursor: pointer;background: linear-gradient(135deg, rgba(245, 245, 245, 1) 0%, rgba(255, 255, 255, 1) 100%);box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);border-radius: 8px;color: black;text-decoration: none; transition: height 0.3s ease-in-out 0s}\n.ms-item:hover{color: #4e6ef2 !important;}\n .ms-item-content {display: flex;flex-direction: column;align-items: center;justify-content: flex-end;}  .ms-sort-icon {width: 10px;height: 3px;margin-bottom: 10px;border-radius: 3px;background: #909eb0;transition: height 0.3s ease-in-out;}  .ms-icon {width: 30px;height: 30px;border-radius: 5px;transition: all 0.3s ease-in-out;}  .ms-toggle-sort-icon {transition: all 0.3s ease-in-out;}  .ms-text {min-width: 36px;margin-top: 2px;font-size: 12px;font-weight: bold;white-space: nowrap;overflow: hidden; text-align: center;}  #ms-setting-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-content {position: relative;width: 800px;height: 500px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-title {width: 100%;height: 15%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-container {width: 100%;height: 85%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-left {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;}  .mss-list {width: 400px;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;overflow-y: scroll;overflow-x: hidden;}  .mss-list::-webkit-scrollbar {}  .mss-item {width: auto;height: 60px;margin-block: 10px;padding-block: 10px;padding-inline: 10px;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;border-radius: 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon {width: 45px;height: 45px;margin: 0 0;border-radius: 10px;cursor: pointer;}  .mss-center {margin: 0 10px;height: 100%;display: flex;flex-direction: column;justify-content: space-around;align-items: stretch;}  .mss-item-name {width: 80px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-url {width: 185px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon_ {display: none;}  .mss-del-btn {width: 45px;height: 45px;border: 1px solid #e5e5e5;border-radius: 10px;cursor: pointer;}  .mss-icon-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-icon-content {position: relative;width: 400px;height: 300px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-icon-title {width: 100%;height: 20%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-icon-container {width: 100%;height: 80%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-icon-form {width: 100%;height: 90px;display: flex;margin-bottom: 30px;flex-direction: column;justify-content: center;align-items: center;}  .mss-icon-input {width: 280px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-close {position: absolute;top: 15px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-icon-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-confirm-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-right {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-form {width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-name-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-url-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-add-btn {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-close {position: absolute;top: 22.5px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-button-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}`;
-        return allStyle;
+        let css = `#ms-component {background: white;border-radius: 10px;display: flex;flex-wrap: nowrap;flex-direction: row; transition: padding-block 0.3s ease-in-out 0s, box-shadow 0.3s ease-in-out 0s, height 0.3s ease-in-out, 0s margin-top 0.3s ease-in-out;}  .ms-container {margin-left: 120px;}  .ms-item {height: 48.5px;overflow-y: hidden;min-width: 30px;margin-inline: 10px;display: flex;padding: 6px 10px;flex-direction: column;align-items: center;justify-content: flex-end;cursor: pointer;background: linear-gradient(135deg, rgba(245, 245, 245, 1) 0%, rgba(255, 255, 255, 1) 100%);box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);border-radius: 8px;color: black;text-decoration: none; transition: height 0.3s ease-in-out 0s}\n.ms-item:hover{color: #4e6ef2 !important;}\n .ms-item-content {display: flex;flex-direction: column;align-items: center;justify-content: flex-end;}  .ms-sort-icon {width: 10px;height: 3px;margin-bottom: 10px;border-radius: 3px;background: #909eb0;transition: height 0.3s ease-in-out;}  .ms-icon {width: 30px;height: 30px;border-radius: 5px;transition: all 0.3s ease-in-out;}  .ms-toggle-sort-icon {transition: all 0.3s ease-in-out;}  .ms-text {min-width: 36px;margin-top: 2px;font-size: 12px;font-weight: bold;white-space: nowrap;overflow: hidden; text-align: center;}  #ms-setting-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-content {position: relative;width: 800px;height: 500px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-title {width: 100%;height: 15%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-container {width: 100%;height: 85%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-left {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;}  .mss-list {width: 400px;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;overflow-y: scroll;overflow-x: hidden;}  .mss-list::-webkit-scrollbar {}  .mss-item {width: auto;height: 60px;margin-block: 10px;padding-block: 10px;padding-inline: 10px;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;border-radius: 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon {width: 45px;height: 45px;margin: 0 0;border-radius: 10px;cursor: pointer;}  .mss-center {margin: 0 10px;height: 100%;display: flex;flex-direction: column;justify-content: space-around;align-items: stretch;}  .mss-item-name {width: 80px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-url {width: 185px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon_ {display: none;}  .mss-del-btn {width: 45px;height: 45px;border: 1px solid #e5e5e5;border-radius: 10px;cursor: pointer;}  .mss-icon-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-icon-content {position: relative;width: 400px;height: 300px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-icon-title {width: 100%;height: 20%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-icon-container {width: 100%;height: 80%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-icon-form {width: 100%;height: 90px;display: flex;margin-bottom: 30px;flex-direction: column;justify-content: center;align-items: center;}  .mss-icon-input {width: 280px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-close {position: absolute;top: 15px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-icon-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-confirm-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-right {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-form {width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-name-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-url-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-add-btn {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-close {position: absolute;top: 22.5px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-button-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);} input{box-sizing:border-box;-webkit-box-sizing: border-box;}`;
+        return createElement('style', '', '', css);
     }
 
     function toggleMSComponent(scrollTop, expandCritical, collapseCritical) {
-        let items = document.querySelectorAll('.ms-item');
-        let sortIcons = document.querySelectorAll('.ms-sort-icon');
-        let icons = document.querySelectorAll('.ms-icon');
-        let toggleSortIcon = document.querySelector('.ms-toggle-sort-icon');
+        let items = selectElementAll('.ms-item');
+        let sortIcons = selectElementAll('.ms-sort-icon');
+        let icons = selectElementAll('.ms-icon');
+        let toggleSortIcon = selectElement('.ms-toggle-sort-icon');
         items.forEach((item, index) => {
             if (scrollTop > expandCritical) {
                 if (index !== items.length - 1) {
@@ -788,55 +717,42 @@
 
     function search(url) {
         let handler = getHandler();
-
         window.open(url + handler.getSearchContent.call());
     }
 
     // 添加快捷键
     function addShortcutKeys() {
-        let urlInputs = document.querySelectorAll('.ms-url');
-        let texts = document.querySelectorAll('.ms-text');
+        let urlInputs = selectElementAll('.ms-url');
+        let texts = selectElementAll('.ms-text');
         let system = getSystem();
-        let modifier;
-        if (system === 'mac' || system === 'ipad') {
-            modifier = '⌥';
-        } else {
-            modifier = 'Alt';
-        }
+        let modifier = (system === 'mac' || system === 'ipad') ? '⌥' : 'Alt';
         let originalTexts = [];
         texts.forEach((text) => {
             originalTexts.push(text.innerHTML);
         });
         let originalZIndex = '';
         document.body.addEventListener('keydown', (event) => {
-            if (event.altKey) {
-                originalZIndex = `${document.querySelector('#ms-component').style.zIndex}`;
-                for (let i = 0; i < 9; ++i) {
-                    if (i > 9) {
-                        break;
-                    }
-                    let keyCode = 'Digit' + (i + 1);
-                    document.querySelector('#ms-component').style.zIndex = '1000';
-                    texts.forEach((text, index) => {
-                        text.style.width = text.offsetWidth + 'px';
-                        text.innerHTML = `${modifier} + ${index + 1}`;
-                    });
-                    if (event.code === keyCode) {
-                        document.querySelector('#ms-component').style.zIndex = originalZIndex;
-//                        console.log(originalZIndex);
-                        search(urlInputs[i].value);
-                    }
-                }
-            }
+            event.altKey && (
+                originalZIndex = selectElement('#ms-component').style.zIndex,
+                    [...Array(9)].forEach((_, i) => {
+                        let keyCode = 'Digit' + (i + 1);
+                        selectElement('#ms-component').style.zIndex = '1000';
+                        texts.forEach((text, index) => {
+                            text.style.width = text.offsetWidth + 'px';
+                            text.innerHTML = `${modifier} + ${index + 1}`;
+                        });
+                        event.code === keyCode && (
+                            selectElement('#ms-component').style.zIndex = originalZIndex, search(urlInputs[i].value)
+                        )
+                    }));
         });
         document.body.addEventListener('keyup', (event) => {
-            if (!event.altKey) {
-                document.querySelector('#ms-component').style.zIndex = originalZIndex;
-                texts.forEach((text, index) => {
+            !event.altKey && (
+                selectElement('#ms-component').style.zIndex = originalZIndex, texts.forEach((text, index) => {
                     text.style.width = '';
                     text.innerHTML = originalTexts[index];
-                });
-            }
+                })
+            )
         });
     }
 
@@ -853,6 +769,42 @@
             return 'win';
         }
     }
+
+    function createElement(tag, className, style, content) {//TODO: 加上监听器
+        let element = document.createElement(tag);
+        className && (element.className = className);
+        style && (element.style = style);
+        content && (element.innerHTML = content);
+        return element;
+    }
+
+
+    function createElementWithId(tag, id, style, content) {
+        let element = document.createElement(tag);
+        id && (element.id = id);
+        style && (element.style = style);
+        content && (element.innerHTML = content);
+        return element;
+    }
+
+    function createInput(type, className, style, value, placeholder) {
+        let input = document.createElement('input');
+        type && (input.type = type);
+        className && (input.className = className);
+        style && (input.style = style);
+        value && (input.value = value);
+        placeholder && (input.placeholder = placeholder);
+        return input;
+    }
+
+    function selectElement(element) {
+        return document.querySelector(element);
+    }
+
+    function selectElementAll(element) {
+        return document.querySelectorAll(element);
+    }
+
 
     main();
 
