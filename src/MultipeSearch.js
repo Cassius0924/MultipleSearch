@@ -12,11 +12,11 @@
 // @description:zh-HK  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
 // @license            MIT
 // @icon               https://i.imgur.com/oqVZgBY.png
-// @match               https://www.bing.com/search*
-// @match               https://www.baidu.com/s?*
-// @match               https://www.google.com/search?*
-// @grant               GM_setValue
-// @grant               GM_getValue
+// @match              https://www.bing.com/search*
+// @match              https://www.baidu.com/s?*
+// @match              https://www.google.com/search?*
+// @grant              GM_setValue
+// @grant              GM_getValue
 // ==/UserScript==
 (function () {
     //已经适配网页
