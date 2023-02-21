@@ -365,6 +365,7 @@
                     toggleMSComponent(scrollTop, 70, 70);
                     turnOffToggleSortMode();
                 };
+
             },
             preToggleSortMode() {
                 const msComponent = selectElement('#ms-component');
