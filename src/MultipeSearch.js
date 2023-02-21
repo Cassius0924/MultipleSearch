@@ -249,11 +249,11 @@
                 const div = createElement('div', 'ms-container', 'margin-left: 120px;');
                 const css = '@media screen and (min-width: 1921px) { .ms-container { width: 1055px; margin: 0 auto !important;} }\n #ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}';
                 const style = createElement('style', '', '', css);
-                const component = msComponent.init();
+                const component = msComponent.create();
                 component.style = 'bottom: 8px; position: absolute;';
                 div.appendChildren(style, component);
                 head.appendChild(div);
-                addShortcutKeys();
+                // addShortcutKeys();
             },
             // 添加滚动监听
             addScrollListener() {
@@ -296,11 +296,10 @@
                 head.style = 'display:flex; flex-direction: column; justify-content: center;';
                 const css = '#ms-component{--ms-margin:165px;margin-left: calc(var(--ms-margin) - 15px);} @media(prefers-color-scheme:light){#ms-component{background:#fff !important;}} @media(prefers-color-scheme:dark){.ms-item {background: #303134 !important; color:#e8eaed !important; box-shadow: none !important; box-sizing: content-box ;border: 1px solid rgb(95,99,104);} .ms-item svg path:nth-child(2){fill: #e8eaed}.mss-content, .mss-icon-content{border: 1px solid rgb(95,99,104); background-color: #202124;}.mss-icon-close svg path:nth-child(2), .mss-del-btn svg path:nth-child(2){fill: #e8eaed;}.mss-title, .mss-icon-title {color: #e8eaed; border-bottom: 1px solid rgb(95,99,104);}.mss-item {background: #303134; border: 1px solid rgb(95,99,104); box-shadow: none;}.mss-item-name, .mss-item-url, .mss-del-btn, .mss-name-input, .mss-url-input, .mss-icon-input, .mss-add-btn, .mss-icon-cancel-btn, .mss-icon-confirm-btn {background: #303134; border: 1px solid rgb(95,99,104); box-shadow: none;}}@media (max-width: 1300px) {#ms-component{--ms-margin: 28px;}}@media (min-width: 1121px) and (max-width: 1300px) {#ms-component{--ms-margin:  calc((100vw - 1065px)/2);}}\n @media (min-width: 1459px) and (max-width: 1659px) {#ms-component{--ms-margin: calc(25vw + -200px);}}\n@media (min-width: 1659px) {#ms-component{--ms-margin: 215px;}}\n#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;} .pin{z-index: 1000}';
                 const style = createElement('style', '', '', css);
-                const msComponent = makeMSComponent();
-                msComponent.style = 'bottom: 8px; position: absolute; top: 60px;';
-                msComponent.appendChild(style);
-                head.appendChild(msComponent);
-                addShortcutKeys();
+                const component = msComponent.create();
+                component.style = 'bottom: 8px; position: absolute; top: 60px;';
+                component.appendChild(style);
+                head.appendChild(component);
             },
             addScrollListener() {
                 window.onscroll = function () {
@@ -350,11 +349,10 @@
                 const css = '.ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s} #ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;} .top{z-index:100} .pin{z-index: 1000;}';
                 const style = createElement('style', '', '', css);
                 document.head.appendChild(style);
-                const msComponent = makeMSComponent();
-                msComponent.classList.add('top');
-                msComponent.style = 'position: sticky; top: 0; height: 0px; margin-top:75px; padding-left: 150px;';
-                body.insertBefore(msComponent, head);
-                addShortcutKeys();
+                const component = msComponent.create();
+                component.classList.add('top');
+                component.style = 'position: sticky; top: 0; height: 0px; margin-top:75px; padding-left: 150px;';
+                body.insertBefore(component, head);
             },
             addScrollListener() {
                 window.onscroll = function () {
@@ -418,148 +416,17 @@
         return handlers[handlerKey];
     }
 
-    // 添加拖拽功能
-
-    function addElementDragListener(element) {
-        const onDragOver = function _onDragOver(e) {
-            e.preventDefault(); // 阻止默认事件
-        };
-        let dragging;
-        const onDragStart = function _onDragStart(e) {
-            dragging = e.target;
-            e.dataTransfer.effectAllowed = 'move';
-            e.target.parentNode.childNodes.forEach((element) => {
-                element.classList.toggle('ms-dragging', e.target === element);
-                element.classList.toggle('ms-crowded', e.target !== element);
-            });
-        };
-        const onDragEnd = function _onDragEnd(e) {
-            setTimeout(() => {
-                e.target.parentNode.childNodes.forEach((element) => {
-                    element.classList.toggle('ms-dragging', e.target === element);
-                    element.classList.toggle('ms-crowded', e.target !== element);
-                });
-            }, 0);
-        };
-        const onDrop = function _onDrop(e) {
-            e.preventDefault();
-            const delay = 0.5; // 延迟
-            let target = e.target;
-            let targetIndex = 0;
-            if (!target.classList.contains('ms-dragging')) {
-                const draggingIndex = Array.prototype.indexOf.call(dragging.parentNode.children, dragging);
-                targetIndex = Array.prototype.indexOf.call(element.parentNode.children, element);
-                reorderElements(draggingIndex, targetIndex, dragging, element, delay);
-            }
-        };
-
-        // element.ondrop = function(event) {
-        //     event.preventDefault();
-        //     const target = document.elementFromPoint(event.clientX, event.clientY);
-        //     const delay = 0.5; // 延迟
-        //     let targetIndex = 0;
-        //     if (!target.classList.contains('ms-dragging') && target.getAttribute('droppable') === 'true') {
-        //         const draggingIndex = Array.prototype.indexOf.call(dragging.parentNode.children, dragging);
-        // if (target.classList.contains('ms-item')) {
-        //     啥也不干
-        // } else if (target.parentNode.classList.contains('ms-item')) {
-        //     target = target.parentNode;
-        // } else {
-        //     target = target.parentNode.parentNode;
-        // }
-        //
-        //         if (this.contains(target)) {
-        //             event.target = this;
-        //         }
-        //         targetIndex = Array.prototype.indexOf.call(target.parentNode.children, target);
-        //         if (draggingIndex !== targetIndex) {
-        //             reorderElements(draggingIndex, targetIndex, dragging, target, delay);
-        //         }
-        //     }
-        //     // 这里添加#father元素的特定处理逻辑
-        // }
-
-        // 插入元素
-        const reorderElements = function _reorderElements(draggingIndex, targetIndex, dragging, target, delay) {
-            const startPosition = dragging.getBoundingClientRect();
-            const endPosition = target.getBoundingClientRect();
-            if (draggingIndex < targetIndex) {
-                addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, 1);
-                setTimeout(() => {
-                    dragging.parentNode.childNodes.forEach((element) => {
-                        element.style.transform = '';
-                    });
-                    target.parentNode.insertBefore(dragging, target.nextSibling);
-                }, delay * 1000);
-            } else {
-                addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, -1);
-                setTimeout(() => {
-                    dragging.parentNode.childNodes.forEach((element) => {
-                        element.style.transform = '';
-                    });
-                    target.parentNode.insertBefore(dragging, target);
-                }, delay * 1000);
-            }
-            updateData(draggingIndex, targetIndex);
-        };
-
-        // 添加动画
-        const addAnimation = function _addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, direction) {
-            let deltaX = 0;
-            const component = dragging.parentNode;
-            if (direction === 1) {
-                // 往右
-                deltaX = endPosition.right - startPosition.right;
-                console.log(draggingIndex, targetIndex);
-                for (let i = draggingIndex + 1; i <= targetIndex; i++) {
-                    const element = component.children[i];
-                    const deltaX2 = startPosition.left - dragging.nextSibling.getBoundingClientRect().left;
-                    element.style.transition = '';
-                    element.style.transform = `translateX(${deltaX2}px)`;
-                    element.offsetWidth;
-                    element.style.transition = 'all 0s';
-                }
-            } else if (direction === -1) {
-                // 往左
-                deltaX = endPosition.left - startPosition.left;
-                for (let i = targetIndex; i < draggingIndex; i++) {
-                    const element = component.children[i];
-                    const deltaX2 = startPosition.right - dragging.previousSibling.getBoundingClientRect().right;
-                    element.style.transition = '';
-                    element.style.transform = `translateX(${deltaX2}px)`;
-                    element.offsetWidth;
-                    element.style.transition = 'all 0s';
-                }
-            }
-            dragging.style.transition = '';
-            dragging.style.transform = `translateX(${deltaX}px)`;
-            dragging.offsetWidth;
-            dragging.style.transition = 'all 0s';
-        };
-
-        // 更新数据
-        const updateData = function _updateData(draggingIndex, targetIndex) {
-            const engines = GM_getValue('searchEngines');
-            const draggingEngine = engines.splice(draggingIndex, 1)[0];
-            engines.splice(targetIndex, 0, draggingEngine);
-            GM_setValue('searchEngines', engines);
-        };
-
-        element.ondragover = onDragOver;
-        element.ondragstart = onDragStart;
-        element.ondragend = onDragEnd;
-        element.ondrop = onDrop;
-    }
-
     const theme = {
         component: {
             backgroundColor: '#ffffff',
             color: '#4e6ef2',
+            // color: '#ec29b3',
             border: 'none',
         },
         item: {
             backgroundColor: 'linear-gradient(135deg, rgba(245, 245, 245, 1) 0%, rgba(255, 255, 255, 1) 100%)',
             color: '#4e6ef2',
+            // color: '#ec29b3',
             border: 'none',
             borderRadius: '8px',
             boxShadow: '-4px -4px 10px -8px rgb(255 255 255), 4px 4px 10px -8px rgb(0 0 0 / 30%)',
@@ -567,6 +434,7 @@
         settings: {
             backgroundColor: '#ffffff',
             color: '#4e6ef2',
+            // color: '#ec29b3',
             border: 'none',
         },
     }
@@ -576,32 +444,38 @@
     const msComponent = {
         theme: {},
         searchEngines: [],
-        dragging: null,
+        dragging: {},
+        element: {},
+
         init() {
             this.searchEngines = GM_getValue('searchEngines');
             this.theme = GM_getValue('theme').component;
-            let component = createElementWithId('div', 'ms-component');
-            // addStyles(component, theme);
+        },
+
+        create() {
+            this.init();
+            this.element = createElementWithId('div', 'ms-component');
             this.searchEngines.forEach((searchEngine, index) => {
                 const item = Object.create(msItem);
                 if (index === this.searchEngines.length - 1) {
-                    component.appendChild(item.createSettings(searchEngine));
+                    this.element.appendChild(item.createSettings(searchEngine));
                 } else {
                     item.props = searchEngine;
-                    component.appendChild(item.create());
+                    this.element.appendChild(item.create());
                 }
             });
-            return component;
+            this.bindShortcuts();
+            return this.element;
         },
 
         toggle() {
             const handler = getHandler();
             handler.preToggleSortMode();
             if (GM_getValue('sortMode') === 'off') {
-                selectElement('#ms-component').classList.add('ms-sort-mode')
+                this.element.classList.add('ms-sort-mode')
                 GM_setValue('sortMode', 'on');
             } else {
-                selectElement('#ms-component').classList.remove('ms-sort-mode')
+                this.element.classList.remove('ms-sort-mode')
                 GM_setValue('sortMode', 'off');
             }
         },
@@ -619,6 +493,40 @@
             parentElement.appendChildren(component);
         },
 
+        bindShortcuts() {
+            const texts = this.element.querySelectorAll('.ms-name');
+            const system = getSystem();
+            const modifier = (system === 'mac' || system === 'ipad') ? '⌥' : 'Alt';
+            let originalTexts = [];
+            texts.forEach((text) => {
+                originalTexts.push(text.innerHTML);
+            });
+            document.body.addEventListener('keydown', (event) => {
+                if (event.altKey) {
+                    selectElement('#ms-component').classList.add('pin');
+                    const len = texts.length > 9 ? 9 : texts.length;
+                    [...Array(len)].forEach((_, i) => {
+                        const keyCode = `Digit${i + 1}`;
+                        texts[i].style.height = `${texts[i].offsetHeight}px`;
+                        texts[i].style.width = `${texts[i].offsetWidth}px`;
+                        texts[i].innerHTML = `${modifier} + ${i + 1}`;
+                        if (event.code === keyCode) {
+                            event.preventDefault(); // 阻止键盘输入
+                            search(this.searchEngines[i]);
+                        }
+                    });
+                }
+            });
+            document.body.addEventListener('keyup', (event) => {
+                if (!event.altKey) {
+                    selectElement('#ms-component').classList.remove('pin');
+                    texts.forEach((text, index) => {
+                        text.style.width = '';
+                        text.innerHTML = originalTexts[index];
+                    });
+                }
+            });
+        }
     }
 
     const msItem = {
@@ -632,22 +540,23 @@
 
         init() {
             this.theme = GM_getValue('theme').item;
-            this.element = createElement('div', 'ms-item');
         },
 
         create() {
             this.init();
+            this.element = createElement('div', 'ms-item');
             this.addElements();
-            this.bingEvents();
+            this.events.bindItem.bind(this)();
             // addStyles(this.element, this.theme);
             return this.element;
         },
 
         createSettings(special) {  //TODO：进一步重构
             this.init();
+            this.element = createElement('div', 'ms-item');
             const content = createElement('div', 'ms-item-content', '', special.toggleSortIcon + special.plusIcon);
-            content.childNodes[0].onclick = msComponent.toggle;
-            content.childNodes[1].onclick = popUpSettingPanel;
+            content.childNodes[0].onclick = () => msComponent.toggle();
+            content.childNodes[1].onclick = () => msSettingsPanel.create();
             content.childNodes.forEach((item) => {
                     item.onmouseover = () => item.lastChild.style = `fill:${this.theme.color};`;
                     item.onmouseout = () => item.lastChild.style = '';
@@ -666,225 +575,152 @@
             const icon = createElement('img', 'ms-icon');
             icon.src = this.props.icon;
             icon.draggable = false;
-            const url = createElement('div', 'ms-url', 'display:none', this.props.url);
+            const url = createInput('','ms-url','display:none',this.props.url);
             content.appendChildren(sortIcon, icon, name, url);
             this.element.draggable = true;
             this.element.appendChild(content);
         },
-        bingEvents() {
-            const delay = 500;
-            const onDragOver = function _onDragOver(e) {
-                e.preventDefault(); // 阻止默认事件
-            };
-            const onDragStart = function _onDragStart(e) {
-                msComponent.dragging = e.target;
-                e.dataTransfer.effectAllowed = 'move';
-                e.target.parentNode.childNodes.forEach((element) => {
-                    element.classList.toggle('ms-dragging', e.target === element);
-                    element.classList.toggle('ms-crowded', e.target !== element);
-                });
-            };
-            const onDragEnd = function _onDragEnd(e) {
-                setTimeout(() => {
+        events: {
+            bindItem() {
+                const delay = 500;
+                const onDragOver = function _onDragOver(e) {
+                    e.preventDefault(); // 阻止默认事件
+                };
+                const onDragStart = function _onDragStart(e) {
+                    msComponent.dragging = e.target;
+                    e.dataTransfer.effectAllowed = 'move';
                     e.target.parentNode.childNodes.forEach((element) => {
                         element.classList.toggle('ms-dragging', e.target === element);
                         element.classList.toggle('ms-crowded', e.target !== element);
                     });
-                }, 0);
-            };
-            const onDrop = function _onDrop(e) {
-                e.preventDefault();
-                if (!e.target.classList.contains('ms-dragging')) {
-                    const draggingIndex = Array.prototype.indexOf.call(msComponent.dragging.parentNode.children, msComponent.dragging);
-                    const targetIndex = Array.prototype.indexOf.call(this.element.parentNode.children, this.element);
-                    reorderElements(draggingIndex, targetIndex, msComponent.dragging, this.element);
-                    // const startPosition = msComponent.dragging.getBoundingClientRect();
-                    // const endPosition = e.target.getBoundingClientRect();
-                    // if (draggingIndex < targetIndex) {
-                    //     addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging, 1);
-                    //     setTimeout(() => {
-                    //         msComponent.dragging.parentNode.childNodes.forEach((element) => {
-                    //             element.style.transform = '';
-                    //         });
-                    //         this.element.parentNode.insertBefore(msComponent.dragging, this.element.nextSibling);
-                    //     }, delay);
-                    // } else {
-                    //     addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging, -1);
-                    //     setTimeout(() => {
-                    //         msComponent.dragging.parentNode.childNodes.forEach((element) => {
-                    //             element.style.transform = '';
-                    //         });
-                    //         this.element.parentNode.insertBefore(msComponent.dragging, this.element);
-                    //     }, delay);
-                    // }
-                    // updateData(draggingIndex, targetIndex);
-                }
-            };
-
-            // 插入元素
-            const reorderElements = function _reorderElements(draggingIndex, targetIndex, dragging, target) {
-                const startPosition = dragging.getBoundingClientRect();
-                const endPosition = target.getBoundingClientRect();
-                if (draggingIndex < targetIndex) {
-                    addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, 1);
+                };
+                const onDragEnd = function _onDragEnd(e) {
                     setTimeout(() => {
-                        dragging.parentNode.childNodes.forEach((element) => {
-                            element.style.transform = '';
+                        e.target.parentNode.childNodes.forEach((element) => {
+                            element.classList.toggle('ms-dragging', e.target === element);
+                            element.classList.toggle('ms-crowded', e.target !== element);
                         });
-                        target.parentNode.insertBefore(dragging, target.nextSibling);
-                    }, delay);
-                } else {
-                    addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, -1);
-                    setTimeout(() => {
-                        dragging.parentNode.childNodes.forEach((element) => {
-                            element.style.transform = '';
-                        });
-                        target.parentNode.insertBefore(dragging, target);
-                    }, delay);
-                }
-                updateData(draggingIndex, targetIndex);
-            };
-
-            // 添加动画
-            const addAnimation = function _addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, direction) {
-                let deltaX = 0;
-                const component = dragging.parentNode;
-                if (direction === 1) { // 往右
-                    deltaX = endPosition.right - startPosition.right;
-                    for (let i = draggingIndex + 1; i <= targetIndex; i++) {
-                        const element = component.children[i];
-                        const deltaX2 = startPosition.left - dragging.nextSibling.getBoundingClientRect().left;
-                        element.style.transition = '';
-                        element.style.transform = `translateX(${deltaX2}px)`;
-                        element.offsetWidth;
-                        element.style.transition = 'all 0s';
+                    }, 0);
+                };
+                const onDrop = function _onDrop(e) {
+                    e.preventDefault();
+                    if (!e.target.classList.contains('ms-dragging')) {
+                        const draggingIndex = Array.prototype.indexOf.call(msComponent.dragging.parentNode.children, msComponent.dragging);
+                        const targetIndex = Array.prototype.indexOf.call(this.element.parentNode.children, this.element);
+                        reorderElements(draggingIndex, targetIndex, msComponent.dragging, this.element);
+                        // const startPosition = msComponent.dragging.getBoundingClientRect();
+                        // const endPosition = e.target.getBoundingClientRect();
+                        // if (draggingIndex < targetIndex) {
+                        //     addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging, 1);
+                        //     setTimeout(() => {
+                        //         msComponent.dragging.parentNode.childNodes.forEach((element) => {
+                        //             element.style.transform = '';
+                        //         });
+                        //         this.element.parentNode.insertBefore(msComponent.dragging, this.element.nextSibling);
+                        //     }, delay);
+                        // } else {
+                        //     addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging, -1);
+                        //     setTimeout(() => {
+                        //         msComponent.dragging.parentNode.childNodes.forEach((element) => {
+                        //             element.style.transform = '';
+                        //         });
+                        //         this.element.parentNode.insertBefore(msComponent.dragging, this.element);
+                        //     }, delay);
+                        // }
+                        // updateData(draggingIndex, targetIndex);
                     }
-                } else if (direction === -1) {  // 往左
-                    deltaX = endPosition.left - startPosition.left;
-                    for (let i = targetIndex; i < draggingIndex; i++) {
-                        const element = component.children[i];
-                        const deltaX2 = startPosition.right - dragging.previousSibling.getBoundingClientRect().right;
-                        element.style.transition = '';
-                        element.style.transform = `translateX(${deltaX2}px)`;
-                        element.offsetWidth;
-                        element.style.transition = 'all 0s';
+                };
+
+                // 插入元素
+                const reorderElements = function _reorderElements(draggingIndex, targetIndex, dragging, target) {
+                    const startPosition = dragging.getBoundingClientRect();
+                    const endPosition = target.getBoundingClientRect();
+                    if (draggingIndex < targetIndex) {
+                        addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, 1);
+                        setTimeout(() => {
+                            dragging.parentNode.childNodes.forEach((element) => {
+                                element.style.transform = '';
+                            });
+                            target.parentNode.insertBefore(dragging, target.nextSibling);
+                            msComponent.bindShortcuts();
+                        }, delay);
+                    } else {
+                        addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, -1);
+                        setTimeout(() => {
+                            dragging.parentNode.childNodes.forEach((element) => {
+                                element.style.transform = '';
+                            });
+                            target.parentNode.insertBefore(dragging, target);
+                            msComponent.bindShortcuts();
+                        }, delay);
                     }
-                }
-                dragging.style.transition = '';
-                dragging.style.transform = `translateX(${deltaX}px)`;
-                dragging.offsetWidth;
-                dragging.style.transition = 'all 0s';
-            };
+                    updateData(draggingIndex, targetIndex);
+                };
 
-            // 更新数据
-            const updateData = function _updateData(draggingIndex, targetIndex) {
-                const engines = GM_getValue('searchEngines');
-                const draggingEngine = engines.splice(draggingIndex, 1)[0];
-                engines.splice(targetIndex, 0, draggingEngine);
-                GM_setValue('searchEngines', engines);
-            };
+                // 添加动画
+                const addAnimation = function _addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, direction) {
+                    let deltaX = 0;
+                    const component = dragging.parentNode;
+                    if (direction === 1) { // 往右
+                        deltaX = endPosition.right - startPosition.right;
+                        for (let i = draggingIndex + 1; i <= targetIndex; i++) {
+                            const element = component.children[i];
+                            const deltaX2 = startPosition.left - dragging.nextSibling.getBoundingClientRect().left;
+                            element.style.transition = '';
+                            element.style.transform = `translateX(${deltaX2}px)`;
+                            element.offsetWidth;
+                            element.style.transition = 'all 0s';
+                        }
+                    } else if (direction === -1) {  // 往左
+                        deltaX = endPosition.left - startPosition.left;
+                        for (let i = targetIndex; i < draggingIndex; i++) {
+                            const element = component.children[i];
+                            const deltaX2 = startPosition.right - dragging.previousSibling.getBoundingClientRect().right;
+                            element.style.transition = '';
+                            element.style.transform = `translateX(${deltaX2}px)`;
+                            element.offsetWidth;
+                            element.style.transition = 'all 0s';
+                        }
+                    }
+                    dragging.style.transition = '';
+                    dragging.style.transform = `translateX(${deltaX}px)`;
+                    dragging.offsetWidth;
+                    dragging.style.transition = 'all 0s';
+                };
 
-            this.element.ondragover = onDragOver;
-            this.element.ondragstart = onDragStart;
-            this.element.ondragend = onDragEnd;
-            this.element.ondrop = onDrop.bind(this);
+                // 更新数据
+                const updateData = function _updateData(draggingIndex, targetIndex) {
+                    const engines = GM_getValue('searchEngines');
+                    const draggingEngine = engines.splice(draggingIndex, 1)[0];
+                    engines.splice(targetIndex, 0, draggingEngine);
+                    GM_setValue('searchEngines', engines);
+                };
 
-        },
+                const onClick = function _onClick() {
+                    search(this.props);
+                };
+
+                this.element.onclick = onClick.bind(this);
+                this.element.ondragover = onDragOver;
+                this.element.ondragstart = onDragStart;
+                this.element.ondragend = onDragEnd;
+                this.element.ondrop = onDrop.bind(this);
+            },
+        }
     }
-
 
 
     const addStyles = function _addStyles(element, styles) {
         Object.assign(element.style, styles);
     }
 
-    // function makeMSComponent() {
-    //     const msComponent = createElementWithId('div', 'ms-component');
-    //     const searchEngines = GM_getValue('searchEngines');
-    //     // 添加元素
-    //     searchEngines.forEach((searchEngine, index) => {
-    //         const element = makeElement(searchEngine, index);
-    //         msComponent.appendChild(element);
-    //     });
-    //     // 添加样式
-    //     const allStyle = getAllStyle();
-    //     msComponent.appendChild(allStyle);
-    //     return msComponent;
-    // }
-    //
-    // // 组件添加元素
-    // function makeElement(searchEngine) {
-    //     const element = createElement('div', 'ms-item');
-    //     element.setAttribute('droppable', true);
-    //     if (searchEngine.name === 'Setting') {
-    //         element.style.justifyContent = 'center';
-    //         element.innerHTML = searchEngine.toggleSortIcon + searchEngine.plusIcon;
-    //         const items = element.childNodes;
-    //         items.forEach((item) => {
-    //             item.onmouseover = function () {
-    //                 item.childNodes[1].style = `fill:${GM_getValue('themeColor')};`;
-    //             };
-    //             item.onmouseout = function () {
-    //                 item.childNodes[1].style = '';
-    //             };
-    //         });
-    //         // 切换排序模式
-    //         items[0].onclick = function () {
-    //             toggleSortMode();
-    //         };
-    //         // 点击后弹出设置面板
-    //         items[1].onclick = function () {
-    //             popUpSettingPanel();
-    //         };
-    //     } else {
-    //         element.onclick = function () {
-    //             search(searchEngine.url);
-    //         };
-    //         const div = createElement('div', 'ms-item-content');
-    //         div.setAttribute('droppable', true);
-    //         const sortIcon = createElement('div', 'ms-sort-icon');
-    //         sortIcon.setAttribute('droppable', true);
-    //         const img = createElement('img', 'ms-icon');
-    //         img.src = searchEngine.icon;
-    //         img.draggable = '';
-    //         img.setAttribute('droppable', true);
-    //         const text = createElement('span', 'ms-text', '', searchEngine.name);
-    //         text.setAttribute('droppable', true);
-    //         const url = createInput('', 'ms-url', 'display:none', searchEngine.url);
-    //         addElementDragListener(element);
-    //         div.appendChildren(sortIcon, img, text, url);
-    //         element.appendChild(div);
-    //     }
-    //     return element;
-    // }
-
-    // 切换排序模式
-    // function toggleSortMode() {
-    //     const component = selectElement('#ms-component');
-    //     const handler = getHandler();
-    //     handler.preToggleSortMode();
-    //     if (GM_getValue('sortMode') === 'off') {
-    //         component.childNodes.forEach((element, index) => {
-    //             element.style.height = '63.5px';
-    //             element.draggable = 'true';
-    //         });
-    //         GM_setValue('sortMode', 'on');
-    //     } else {
-    //         component.childNodes.forEach((element, index) => {
-    //             element.style.height = '48.5px';
-    //             element.draggable = '';
-    //         });
-    //         GM_setValue('sortMode', 'off');
-    //     }
-    // }
-
     function turnOffToggleSortMode() {
         GM_getValue('sortMode') === 'on' && msComponent.toggle();
     }
 
-    const msSettingPanel = {
+    const msSettingsPanel = {
         props: {
-            title: '';
+            title: '',
         },
 
         init() {
@@ -893,7 +729,7 @@
 
         create() {
             this.init();
-            const panel = createElementWithId('div', 'ms-setting-panel');
+            const panel = createElementWithId('div', 'ms-settings-panel');
             const content = createElement('div', 'mss-content');
             const title = createElement('div', 'mss-title', '', this.props.title);
             const container = createElement('div', 'mss-container');
@@ -905,10 +741,10 @@
             const urlInput = createInput('', 'mss-url-input', '', '', '搜索引擎地址');
             const iconInput = createInput('', 'mss-icon-input', '', '', '图标地址（留空自动生成）');
             const addBtn = createElement('button', 'mss-add-btn', '', '添加');
-            const searchEngines = GM_getValue('searchEngines');
             const close = createElement('div', 'mss-icon-close', '', '<svg class=\'mss-close-icon\' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
             const cancelBtn = createElement('button', 'mss-icon-cancel-btn', '', '取消');
             const confirmBtn = createElement('button', 'mss-icon-confirm-btn', '', '确定');
+            const searchEngines = GM_getValue('searchEngines');
             form.appendChildren(nameInput, urlInput, iconInput, addBtn);
             left.appendChild(list);
             right.appendChild(form);
@@ -916,207 +752,161 @@
             content.appendChildren(close, title, container, cancelBtn, confirmBtn);
             panel.appendChild(content);
             document.body.appendChild(panel);
+            searchEngines.forEach((searchEngine, index) => {
+                index !== searchEngines.length - 1 && this.appendListItem(searchEngine);
+            });
+            this.events.bindPanel();
+            this.events.bindForm.bind(this)();
         },
 
-        appendListItem() {
-
-
-        },
-
-        bindEvents() {
-            const addBtn = selectElement('mss-add-btn');
-            addBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const name = nameInput.value;
-                const url = urlInput.value;
-                let hostname = '';
-                try {
-                    hostname = new URL(url).hostname;
-                } catch (e) {
-                    alert('网址格式错误');
-                    return;
-                }
-                const icon = iconInput.value ? iconInput.value : `https://icon.horse/icon/${hostname}`;
-                if (name && url && icon) {
-                    const searchEngine = {
-                        name,
-                        url,
-                        icon,
-                    };
-                    appendListItem3=(searchEngine);
-                }
-            });
-            const close = selectElement('mss-colse');
-            close.addEventListener('click', () => {
-                panel.remove();
-            });
-            const cancelBtn = selectElement('mss-icon-cancel-btn');
-            cancelBtn.addEventListener('click', (e) => {
-                panel.remove();
-            });
-            const confirmBtn = selectElement('mss-icon-confirm-btn');
-            confirmBtn.addEventListener('click', (e) => {
-                const newSearchEngines = [];
-                const setting = GM_getValue('searchEngines').pop();
-                const list = selectElement('#ms-setting-panel .mss-list');
-                list.childNodes.forEach((item, index) => {
-                    if (item.style.display !== 'none') {
-                        const name = selectElementAll('.mss-item-name')[index].value;
-                        const url = selectElementAll('.mss-item-url')[index].value;
-                        const icon = selectElementAll('.mss-item-icon_')[index].value;
-                        newSearchEngines.push({
-                            name,
-                            url,
-                            icon,
-                        });
-                    }
-                });
-                newSearchEngines.push(setting);
-                GM_setValue('searchEngines', newSearchEngines);
-                panel.remove();
-                window.location.reload();
-            });
-        },
-
-        addStyles() {
-
-        }
-
-    }
-
-    // 弹出添加面板
-    function popUpSettingPanel() { // TODO: 提示信息
-        const panel = createElementWithId('div', 'ms-setting-panel');
-        const content = createElement('div', 'mss-content');
-        const title = createElement('div', 'mss-title', '', '多重搜索设置');
-        const container = createElement('div', 'mss-container');
-        const left = createElement('div', 'mss-left');
-        const list = createElement('div', 'mss-list');
-
-        list.innerHTML = '';
-        const searchEngines = GM_getValue('searchEngines');
-        searchEngines.forEach((searchEngine, index) => {
-            index !== searchEngines.length - 1 && appendItem(searchEngine, index);
-        });
-
-        function appendItem(searchEngine, index) {
-            index = index || list.childNodes.length;
+        appendListItem(searchEngine) {
             const item = createElement('div', 'mss-item');
             const icon = createElement('img', 'mss-item-icon');
             icon.src = searchEngine.icon;
-            icon.addEventListener('click', () => {
-                popUpIconPanel(searchEngine, index);
-            });
             const center = createElement('div', 'mss-center');
             const name = createInput('', 'mss-item-name', '', searchEngine.name, '名称');
             const url = createInput('', 'mss-item-url', '', searchEngine.url, '网址');
             const icon_ = createInput('', 'mss-item-icon_', '', searchEngine.icon);
             const delBtn = createElement('button', 'mss-del-btn', '', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M7 4V2h10v2h5v2h-2v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6H2V4h5zM6 6v14h12V6H6zm3 3h2v8H9V9zm4 0h2v8h-2V9z"/></svg>');
-            delBtn.addEventListener('click', (e) => {
-                list.childNodes[index].style.display = 'none';
-            });
             center.appendChildren(name, url, icon_)
-            item.appendChildren(name, url, icon_)
+            item.appendChildren(icon, center, delBtn)
+            const list = selectElement('.mss-list');
             list.appendChild(item);
-        }
+            this.events.bindListItem.bind(this)(item);
+        },
 
-        function popUpIconPanel(searchEngine, index) {
+        events: {
+            //绑定面板事件
+            bindPanel() {
+                //关闭按钮
+                selectElement('.mss-icon-close').addEventListener('click', () => {
+                    selectElement('#ms-settings-panel').remove();
+                });
+                //取消按钮
+                selectElement('.mss-icon-cancel-btn').addEventListener('click', (e) => {
+                    selectElement('#ms-settings-panel').remove();
+                });
+                //确认按钮
+                selectElement('.mss-icon-confirm-btn').addEventListener('click', (e) => {
+                    const newSearchEngines = [];
+                    const settings = GM_getValue('searchEngines').pop();
+                    const list = selectElement('#ms-settings-panel .mss-list');
+                    list.childNodes.forEach((item, index) => {
+                        if (item.style.display !== 'none') {
+                            const name = selectElementAll('.mss-item-name')[index].value;
+                            const url = selectElementAll('.mss-item-url')[index].value;
+                            const icon = selectElementAll('.mss-item-icon')[index].src;
+                            newSearchEngines.push({
+                                name,
+                                url,
+                                icon,
+                            });
+                        }
+                    });
+                    newSearchEngines.push(settings);
+                    GM_setValue('searchEngines', newSearchEngines);
+                    selectElement('#ms-settings-panel').remove();
+                    window.location.reload();
+                });
+            },
+            //绑定表单事件
+            bindForm() {
+                //添加按钮
+                selectElement('.mss-add-btn').addEventListener('click', (e) => {    //TODO: 判断URL是否有效
+                    e.preventDefault();
+                    let url = selectElement('.mss-url-input').value;
+                    let hostname = '';
+                    try {
+                        new RegExp('^(https:\\/\\/)').test(url) || (url = `https://${url}`);
+                        hostname = new URL(url).hostname;
+                    } catch (e) {
+                        alert('网址格式错误');
+                        return;
+                    }
+                    const name = selectElement('.mss-name-input').value;
+                    const icon = selectElement('.mss-icon-input').value || `https://icon.horse/icon/${hostname}`;
+                    if (name && url && icon) {
+                        const searchEngine = {
+                            name,
+                            url,
+                            icon,
+                        };
+                        this.appendListItem(searchEngine);
+                    }
+                });
+            },
+            //绑定列表事件
+            bindListItem(item) {
+                //图标按钮
+                item.querySelector('.mss-item-icon').addEventListener('click', () => {
+                    this.createIconPanel(item);
+                });
+                //删除按钮
+                item.querySelector('.mss-del-btn').addEventListener('click', () => {
+                    item.style.display = 'none';
+                });
+            },
+            //绑定图标面板事件
+            bindIconPanel(panel) {
+                panel.querySelector('.mss-icon-close').addEventListener('click', () => {
+                    panel.remove();
+                });
+                panel.querySelector('.mss-icon-cancel-btn').addEventListener('click', () => {
+                    panel.remove();
+                });
+                panel.querySelector('.mss-icon-confirm-btn').addEventListener('click', () => {
+                    this.querySelector('.mss-item-icon').src = panel.querySelector('.mss-icon-input').value;
+                    // selectElementAll('#ms-settings-panel .mss-item-icon_')[index].value = iconInput.value;
+                    panel.remove();
+                });
+            }
+
+        },
+
+        createIconPanel(item) { // TODO: 提示信息Toast
             const panel = createElement('div', 'mss-icon-panel');
             const content = createElement('div', 'mss-icon-content');
             const title = createElement('div', 'mss-icon-title', '', '修改图标');
             const container = createElement('div', 'mss-icon-container');
             const form = createElement('form', 'mss-icon-form');
-            const iconInput = createInput('', 'mss-icon-input', '', selectElementAll('#ms-setting-panel .mss-item-icon_')[index].value, '图标地址（留空自动生成）');
+            const iconInput = createInput('', 'mss-icon-input', '', this.value, '图标地址（留空自动生成）');
             const close = createElement('div', 'mss-icon-close', '', '<svg class=\'mss-icon-editor-close-icon\' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
-            close.addEventListener('click', () => {
-                panel.remove();
-            });
             const cancelBtn = createElement('button', 'mss-icon-cancel-btn', '', '取消');
-            cancelBtn.addEventListener('click', (e) => {
-                panel.remove();
-            });
             const confirmBtn = createElement('button', 'mss-icon-confirm-btn', '', '确定');
-            confirmBtn.addEventListener('click', (e) => {
-                selectElementAll('#ms-setting-panel .mss-item-icon')[index].src = iconInput.value;
-                selectElementAll('#ms-setting-panel .mss-item-icon_')[index].value = iconInput.value;
-                panel.remove();
-            });
             form.appendChild(iconInput);
             container.appendChild(form);
             content.appendChildren(title, container, close, cancelBtn, confirmBtn);
             panel.appendChild(content);
             document.body.appendChild(panel);
+            this.events.bindIconPanel.bind(item)(panel);
+        },
+
+        addStyles() {
+            let style = document.createElement('style');
         }
 
-        const right = createElement('div', 'mss-right');
-        const form = createElement('form', 'mss-form');
-        const nameInput = createInput('', 'mss-name-input', '', '', '搜索引擎名称');
-        const urlInput = createInput('', 'mss-url-input', '', '', '搜索引擎地址');
-        const iconInput = createInput('', 'mss-icon-input', '', '', '图标地址（留空自动生成）');
-        const addBtn = createElement('button', 'mss-add-btn', '', '添加');
-        addBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const name = nameInput.value;
-            const url = urlInput.value;
-            let hostname = '';
-            try {
-                hostname = new URL(url).hostname;
-            } catch (e) {
-                alert('网址格式错误');
-                return;
-            }
-            const icon = iconInput.value ? iconInput.value : `https://icon.horse/icon/${hostname}`;
-            if (name && url && icon) {
-                const searchEngine = {
-                    name,
-                    url,
-                    icon,
-                };
-                appendItem(searchEngine);
-            }
-        });
-        const close = createElement('div', 'mss-icon-close', '', '<svg class=\'mss-close-icon\' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
-        close.addEventListener('click', () => {
-            panel.remove();
-        });
-        const cancelBtn = createElement('button', 'mss-icon-cancel-btn', '', '取消');
-        cancelBtn.addEventListener('click', (e) => {
-            panel.remove();
-        });
-        const confirmBtn = createElement('button', 'mss-icon-confirm-btn', '', '确定');
-        confirmBtn.addEventListener('click', (e) => {
-            const newSearchEngines = [];
-            const setting = GM_getValue('searchEngines').pop();
-            const list = selectElement('#ms-setting-panel .mss-list');
-            list.childNodes.forEach((item, index) => {
-                if (item.style.display !== 'none') {
-                    const name = selectElementAll('.mss-item-name')[index].value;
-                    const url = selectElementAll('.mss-item-url')[index].value;
-                    const icon = selectElementAll('.mss-item-icon_')[index].value;
-                    newSearchEngines.push({
-                        name,
-                        url,
-                        icon,
-                    });
-                }
-            });
-            newSearchEngines.push(setting);
-            GM_setValue('searchEngines', newSearchEngines);
-            panel.remove();
-            window.location.reload();
-        });
-        form.appendChildren(nameInput, urlInput, iconInput, addBtn);
-        left.appendChild(list);
-        right.appendChild(form);
-        container.appendChildren(left, right);
-        content.appendChildren(close, title, container, cancelBtn, confirmBtn);
-        panel.appendChild(content);
-        document.body.appendChild(panel);
     }
 
-    function getAllStyle() {
-        const css = '#ms-component {background: white;border-radius: 10px;display: flex;flex-wrap: nowrap;flex-direction: row; transition: padding-block 0.3s ease-in-out 0s, box-shadow 0.3s ease-in-out 0s, height 0.3s ease-in-out, 0s margin-top 0.3s ease-in-out;}  .ms-container {margin-left: 120px;}  .ms-item {height: 48.5px;overflow-y: hidden;min-width: 30px;margin-inline: 10px;display: flex;padding: 6px 10px;flex-direction: column;align-items: center;justify-content: flex-end;cursor: pointer;background: linear-gradient(135deg, rgba(245, 245, 245, 1) 0%, rgba(255, 255, 255, 1) 100%);box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);border-radius: 8px;color: black;text-decoration: none; transition: height 0.3s ease-in-out 0s}.ms-item:hover{color: #4e6ef2 !important;} .ms-sort-mode .ms-item { height: 63.5px; } .ms-mini .ms-item { height: 18px; } .ms-mini .ms-toggle-sort-icon { height: 0px; width: 0px; opacity: 0; } .ms-mini .ms-sort-icon { height: 0px; opacity: 0; margin-bottom: 0px; } .ms-mini .ms-icon { height: 0px; width: 0px; opacity: 0; } .ms-item-content {display: flex;flex-direction: column;align-items: center;justify-content: flex-end;}  .ms-sort-icon {width: 10px;height: 3px;margin-bottom: 10px;border-radius: 3px;background: #909eb0;transition: height 0.3s ease-in-out;}  .ms-icon {width: 30px;height: 30px;border-radius: 5px;transition: all 0.3s ease-in-out;}  .ms-toggle-sort-icon {transition: all 0.3s ease-in-out;}  .ms-name {min-width: 36px;margin-top: 2px;font-size: 12px;font-weight: bold;white-space: nowrap;overflow: hidden; text-align: center;}  #ms-setting-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-content {position: relative;width: 800px;height: 500px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-title {width: 100%;height: 15%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-container {width: 100%;height: 85%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-left {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;}  .mss-list {width: 400px;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;overflow-y: scroll;overflow-x: hidden;}  .mss-list::-webkit-scrollbar {}  .mss-item {width: auto;height: 60px;margin-block: 10px;padding-block: 10px;padding-inline: 10px;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;border-radius: 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon {width: 45px;height: 45px;margin: 0 0;border-radius: 10px;cursor: pointer;}  .mss-center {margin: 0 10px;height: 100%;display: flex;flex-direction: column;justify-content: space-around;align-items: stretch;}  .mss-item-name {width: 80px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-url {width: 185px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon_ {display: none;}  .mss-del-btn {width: 45px;height: 45px;border: 1px solid #e5e5e5;border-radius: 10px;cursor: pointer;}  .mss-icon-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-icon-content {position: relative;width: 400px;height: 300px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-icon-title {width: 100%;height: 20%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-icon-container {width: 100%;height: 80%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-icon-form {width: 100%;height: 90px;display: flex;margin-bottom: 30px;flex-direction: column;justify-content: center;align-items: center;}  .mss-icon-input {width: 280px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-close {position: absolute;top: 20px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-icon-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-confirm-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-right {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-form {width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-name-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-url-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-add-btn {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-close {position: absolute;top: 22.5px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-button-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);} input{box-sizing:border-box;-webkit-box-sizing: border-box;}';
-        return css;
+    //Toast
+    function toast(text) {
+        const toast = createElement('div', 'mss-toast');
+        toast.innerText = text;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 2000);
+    }
+
+    const msStyle = {
+        globalStyle: '#ms-component {background: white;border-radius: 10px;display: flex;flex-wrap: nowrap;flex-direction: row; transition: padding-block 0.3s ease-in-out 0s, box-shadow 0.3s ease-in-out 0s, height 0.3s ease-in-out, 0s margin-top 0.3s ease-in-out;}  .ms-container {margin-left: 120px;}  .ms-item {height: 48.5px;overflow-y: hidden;min-width: 30px;margin-inline: 10px;display: flex;padding: 6px 10px;flex-direction: column;align-items: center;justify-content: flex-end;cursor: pointer;background: linear-gradient(135deg, rgba(245, 245, 245, 1) 0%, rgba(255, 255, 255, 1) 100%);box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);border-radius: 8px;color: black;text-decoration: none; transition: height 0.3s ease-in-out 0s}.ms-item:hover{color: #4e6ef2 !important;} .ms-sort-mode .ms-item { height: 63.5px; } .ms-mini .ms-item { height: 18px; } .ms-mini .ms-toggle-sort-icon { height: 0px; width: 0px; opacity: 0; } .ms-mini .ms-sort-icon { height: 0px; opacity: 0; margin-bottom: 0px; } .ms-mini .ms-icon { height: 0px; width: 0px; opacity: 0; } .ms-item-content {display: flex;flex-direction: column;align-items: center;justify-content: flex-end;}  .ms-sort-icon {width: 10px;height: 3px;margin-bottom: 10px;border-radius: 3px;background: #909eb0;transition: height 0.3s ease-in-out;}  .ms-icon {width: 30px;height: 30px;border-radius: 5px;transition: all 0.3s ease-in-out;}  .ms-toggle-sort-icon {transition: all 0.3s ease-in-out;}  .ms-name {min-width: 36px;margin-top: 2px;font-size: 12px;font-weight: bold;white-space: nowrap;overflow: hidden; text-align: center;}  #ms-settings-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-content {position: relative;width: 800px;height: 500px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-title {width: 100%;height: 15%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-container {width: 100%;height: 85%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-left {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;}  .mss-list {width: 400px;height: 100%;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;overflow-y: scroll;overflow-x: hidden;}  .mss-list::-webkit-scrollbar {}  .mss-item {width: auto;height: 60px;margin-block: 10px;padding-block: 10px;padding-inline: 10px;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;border-radius: 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon {width: 45px;height: 45px;margin: 0 0;border-radius: 10px;cursor: pointer;}  .mss-center {margin: 0 10px;height: 100%;display: flex;flex-direction: column;justify-content: space-around;align-items: stretch;}  .mss-item-name {width: 80px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-url {width: 185px;border: none;outline: none;border-radius: 3px;padding: 3px 10px 1px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-item-icon_ {display: none;}  .mss-del-btn {width: 45px;height: 45px;border: 1px solid #e5e5e5;border-radius: 10px;cursor: pointer;}  .mss-icon-panel {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background: rgba(0, 0, 0, 0.2);z-index: 1000;display: flex;justify-content: center;align-items: center;}  .mss-icon-content {position: relative;width: 400px;height: 300px;border-radius: 10px;display: flex;flex-direction: column;justify-content: flex-start;align-items: center;background: #EFEFEFFF;}  .mss-icon-title {width: 100%;height: 20%;display: flex;justify-content: center;align-items: center;font-size: 20px;font-weight: bold;border-bottom: 1px solid #e5e5e5;}  .mss-icon-container {width: 100%;height: 80%;display: flex;flex-direction: row;justify-content: flex-start;align-items: center;}  .mss-icon-form {width: 100%;height: 90px;display: flex;margin-bottom: 30px;flex-direction: column;justify-content: center;align-items: center;}  .mss-icon-input {width: 280px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;font-weight: bold;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-close {position: absolute;top: 20px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-icon-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-confirm-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-right {width: 100%;height: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-form {width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center;}  .mss-name-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-url-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-icon-input {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset, 4px 4px 10px -8px rgba(0, 0, 0, .3) inset;background: linear-gradient(135deg, rgba(240, 240, 240, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-add-btn {width: 300px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;margin-bottom: 10px;padding: 0 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-close {position: absolute;top: 22.5px;right: 10px;width: 30px;display: flex;flex-direction: row;justify-content: center;align-items: center;height: 30px;margin: 0 10px;cursor: pointer;}  .mss-cancel-btn {position: absolute;bottom: 10px;right: 100px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);}  .mss-button-btn {position: absolute;bottom: 10px;right: 10px;width: 80px;height: 40px;border: 1px solid #e5e5e5;border-radius: 10px;background: #e5e5e5;cursor: pointer;box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1), 4px 4px 10px -8px rgba(0, 0, 0, .3);background: linear-gradient(135deg, rgba(230, 230, 230, 1) 0%, rgba(246, 246, 246, 1) 100%);} input{box-sizing:border-box;-webkit-box-sizing: border-box;}',
+
+        add(css) {
+            this.globalStyle.innerHTML += css;
+        },
+
+        get() {
+            return this.globalStyle;
+        }
     }
 
     // 展开或折叠组件
@@ -1129,44 +919,9 @@
         }
     }
 
-    function search(url) {
+    function search(searchEngine) {
         const handler = getHandler();
-        window.open(url + handler.getSearchContent.call());
-    }
-
-    // 添加快捷键
-    function addShortcutKeys() {
-        const urlInputs = selectElementAll('.ms-url');
-        const texts = selectElementAll('.ms-name');
-        const system = getSystem();
-        const modifier = (system === 'mac' || system === 'ipad') ? '⌥' : 'Alt';
-        const originalTexts = [];
-        texts.forEach((text) => {
-            originalTexts.push(text.innerHTML);
-        });
-        document.body.addEventListener('keydown', (event) => {
-            event.altKey && (
-                selectElement('#ms-component').classList.add('pin'),
-                    [...Array(9)].forEach((_, i) => {
-                        const keyCode = `Digit${i + 1}`;
-                        texts[i].style.height = `${texts[i].offsetHeight}px`;
-                        texts[i].style.width = `${texts[i].offsetWidth}px`;
-                        texts[i].innerHTML = `${modifier} + ${i + 1}`;
-                        event.code === keyCode && (
-                            event.preventDefault(), // 阻止键盘输入
-                                search(urlInputs[i].value)
-                        );
-                    }));
-        });
-        document.body.addEventListener('keyup', (event) => {
-            !event.altKey && (
-                selectElement('#ms-component').classList.remove('pin'),
-                    texts.forEach((text, index) => {
-                        text.style.width = '';
-                        text.innerHTML = originalTexts[index];
-                    })
-            );
-        });
+        window.open(searchEngine.url + handler.getSearchContent());
     }
 
     // 获取系统类型
@@ -1209,12 +964,12 @@
         return input;
     }
 
-    function selectElement(element) {
-        return document.querySelector(element);
+    function selectElement(className) {
+        return document.querySelector(className);
     }
 
-    function selectElementAll(element) {
-        return document.querySelectorAll(element);
+    function selectElementAll(className) {
+        return document.querySelectorAll(className);
     }
 
     Node.prototype.appendChildren = function (...children) {
@@ -1278,7 +1033,7 @@
 
     GM_setValue('themeColor', '#4e6ef2');
     GM_setValue('sortMode', 'off');
-    GM_addStyle(getAllStyle());
+    GM_addStyle(msStyle.get());
 
     const handler = getHandler();
     handler.preprocess.call();
