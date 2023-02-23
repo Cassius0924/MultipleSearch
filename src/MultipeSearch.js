@@ -214,11 +214,12 @@
 // @grant               GM_registerMenuCommand
 // ==/UserScript==
 (function () {
-    // 已经适配网页
+    "use strict";
     // TODO: 使用命名函数表达式而不是函数声明
     // TODO: 国际化
     // TODO: GM_addStyle()去广告
     // TODO: registerMenuCommand()
+
 
     GM_registerMenuCommand('设置', () => {
         alert('暂未开放');
@@ -227,6 +228,7 @@
         alert('暂未开放');
     });
 
+    // 已经适配网页
     const handlers = {
         baidu: {
             // 网页预处理
@@ -476,6 +478,9 @@
                 this.element.classList.add('ms-sort-mode')
                 GM_setValue('sortMode', 'on');
             } else {
+                selectElement('#ms-component').childNodes.forEach((child) => {
+                    child.style.transition = '';
+                });
                 this.element.classList.remove('ms-sort-mode')
                 GM_setValue('sortMode', 'off');
             }
@@ -536,7 +541,7 @@
             url: '',
             icon: '',
         },
-        element: {},
+        item: {},
         theme: {},
 
         init() {
@@ -545,27 +550,26 @@
 
         create() {
             this.init();
-            this.element = createElement('div', 'ms-item');
+            this.item = createElement('div', 'ms-item');
             this.addElements();
             this.events.bindItem.bind(this)();
             // addStyles(this.element, this.theme);
-            return this.element;
+            return this.item;
         },
 
         createSettings(special) {  //TODO：进一步重构
             this.init();
-            this.element = createElement('div', 'ms-item');
+            this.item = createElement('div', 'ms-item');
             const content = createElement('div', 'ms-item-content', '', special.toggleSortIcon + special.plusIcon);
-            content.childNodes[0].onclick = () => msComponent.toggle();
-            content.childNodes[1].onclick = () => msSettingsPanel.create();
             content.childNodes.forEach((item) => {
                     item.onmouseover = () => item.lastChild.style = `fill:${this.theme.color};`;
                     item.onmouseout = () => item.lastChild.style = '';
                 }
             );
-            this.element.style.justifyContent = 'center';
-            this.element.appendChild(content);
-            return this.element;
+            this.item.style.justifyContent = 'center';
+            this.item.appendChild(content);
+            this.events.bindSettings.bind(this)();
+            return this.item;
         },
 
 
@@ -576,10 +580,10 @@
             const icon = createElement('img', 'ms-icon');
             icon.src = this.props.icon;
             icon.draggable = false;
-            const url = createInput('','ms-url','display:none',this.props.url);
+            const url = createInput('', 'ms-url', 'display:none', this.props.url);
             content.appendChildren(sortIcon, icon, name, url);
-            this.element.draggable = true;
-            this.element.appendChild(content);
+            this.item.draggable = true;
+            this.item.appendChild(content);
         },
         events: {
             bindItem() {
@@ -590,25 +594,28 @@
                 const onDragStart = function _onDragStart(e) {
                     msComponent.dragging = e.target;
                     e.dataTransfer.effectAllowed = 'move';
-                    e.target.parentNode.childNodes.forEach((element) => {
-                        element.classList.toggle('ms-dragging', e.target === element);
-                        element.classList.toggle('ms-crowded', e.target !== element);
-                    });
-                };
-                const onDragEnd = function _onDragEnd(e) {
                     setTimeout(() => {
-                        e.target.parentNode.childNodes.forEach((element) => {
-                            element.classList.toggle('ms-dragging', e.target === element);
-                            element.classList.toggle('ms-crowded', e.target !== element);
+                        e.target.parentNode.childNodes.forEach((element, index) => {
+                            if (index !== e.target.parentNode.childNodes.length - 1) {
+                                element.classList.toggle('ms-dragging', e.target === element);
+                                element.classList.toggle('ms-crowded', e.target !== element);
+                            }
                         });
                     }, 0);
                 };
+                const onDragEnd = function _onDragEnd(e) {
+                    e.target.parentNode.childNodes.forEach((element, index) => {
+                        if (index !== e.target.parentNode.childNodes.length - 1) {
+                            element.classList.toggle('ms-dragging', e.target === element);
+                            element.classList.toggle('ms-crowded', e.target !== element);
+                        }
+                    });
+                };
                 const onDrop = function _onDrop(e) {
-                    e.preventDefault();
                     if (!e.target.classList.contains('ms-dragging')) {
                         const draggingIndex = Array.prototype.indexOf.call(msComponent.dragging.parentNode.children, msComponent.dragging);
-                        const targetIndex = Array.prototype.indexOf.call(this.element.parentNode.children, this.element);
-                        reorderElements(draggingIndex, targetIndex, msComponent.dragging, this.element);
+                        const targetIndex = Array.prototype.indexOf.call(this.item.parentNode.children, this.item);
+                        reorderElements(draggingIndex, targetIndex, msComponent.dragging, this.item);
                         // const startPosition = msComponent.dragging.getBoundingClientRect();
                         // const endPosition = e.target.getBoundingClientRect();
                         // if (draggingIndex < targetIndex) {
@@ -701,12 +708,16 @@
                     search(this.props);
                 };
 
-                this.element.onclick = onClick.bind(this);
-                this.element.ondragover = onDragOver;
-                this.element.ondragstart = onDragStart;
-                this.element.ondragend = onDragEnd;
-                this.element.ondrop = onDrop.bind(this);
+                this.item.onclick = onClick.bind(this);
+                this.item.ondragover = onDragOver;
+                this.item.ondragstart = onDragStart;
+                this.item.ondragend = onDragEnd;
+                this.item.ondrop = onDrop.bind(this);
             },
+            bindSettings() {
+                this.item.querySelector('.ms-toggle-sort-icon').onclick = () => msComponent.toggle();
+                this.item.querySelector('.ms-plus-icon').onclick = () => msSettingsPanel.render(document.body);
+            }
         }
     }
 
@@ -730,7 +741,7 @@
 
         create() {
             this.init();
-            const panel = createElementWithId('div', 'ms-settings-panel');
+            this.panel = createElementWithId('div', 'ms-settings-panel');
             const content = createElement('div', 'mss-content');
             const title = createElement('div', 'mss-title', '', this.props.title);
             const container = createElement('div', 'mss-container');
@@ -745,19 +756,19 @@
             const close = createElement('div', 'mss-icon-close', '', '<svg class=\'mss-close-icon\' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
             const cancelBtn = createElement('button', 'mss-icon-cancel-btn', '', '取消');
             const confirmBtn = createElement('button', 'mss-icon-confirm-btn', '', '确定');
-            const searchEngines = GM_getValue('searchEngines');
             form.appendChildren(nameInput, urlInput, iconInput, addBtn);
             left.appendChild(list);
             right.appendChild(form);
             container.appendChildren(left, right);
             content.appendChildren(close, title, container, cancelBtn, confirmBtn);
-            panel.appendChild(content);
-            document.body.appendChild(panel);
+            this.panel.appendChild(content);
+            const searchEngines = GM_getValue('searchEngines');
             searchEngines.forEach((searchEngine, index) => {
                 index !== searchEngines.length - 1 && this.appendListItem(searchEngine);
             });
-            this.events.bindPanel();
+            this.events.bindPanel.bind(this)();
             this.events.bindForm.bind(this)();
+            return this.panel;
         },
 
         appendListItem(searchEngine) {
@@ -771,51 +782,51 @@
             const delBtn = createElement('button', 'mss-del-btn', '', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M7 4V2h10v2h5v2h-2v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6H2V4h5zM6 6v14h12V6H6zm3 3h2v8H9V9zm4 0h2v8h-2V9z"/></svg>');
             center.appendChildren(name, url, icon_)
             item.appendChildren(icon, center, delBtn)
-            const list = selectElement('.mss-list');
-            list.appendChild(item);
+            this.panel.querySelector('.mss-list').appendChild(item);
             this.events.bindListItem.bind(this)(item);
+        },
+
+        render(parentNode) {
+            parentNode.appendChild(this.create());
         },
 
         events: {
             //绑定面板事件
             bindPanel() {
                 //关闭按钮
-                selectElement('.mss-icon-close').addEventListener('click', () => {
-                    selectElement('#ms-settings-panel').remove();
+                const list = this.panel.querySelector('.mss-list');
+                this.panel.querySelector('.mss-icon-close').addEventListener('click', () => {
+                    this.panel.remove();
                 });
                 //取消按钮
-                selectElement('.mss-icon-cancel-btn').addEventListener('click', (e) => {
-                    selectElement('#ms-settings-panel').remove();
+                this.panel.querySelector('.mss-icon-cancel-btn').addEventListener('click', (e) => {
+                    this.panel('#ms-settings-panel').remove();
                 });
                 //确认按钮
-                selectElement('.mss-icon-confirm-btn').addEventListener('click', (e) => {
+                this.panel.querySelector('.mss-icon-confirm-btn').addEventListener('click', (e) => {
                     const newSearchEngines = [];
                     const settings = GM_getValue('searchEngines').pop();
-                    const list = selectElement('#ms-settings-panel .mss-list');
-                    list.childNodes.forEach((item, index) => {
+                    this.panel.querySelector('.mss-').childNodes.forEach((item, index) => {
                         if (item.style.display !== 'none') {
-                            const name = selectElementAll('.mss-item-name')[index].value;
-                            const url = selectElementAll('.mss-item-url')[index].value;
-                            const icon = selectElementAll('.mss-item-icon')[index].src;
-                            newSearchEngines.push({
-                                name,
-                                url,
-                                icon,
-                            });
+                            const name = list.querySelectorAll('.mss-item-name')[index].value;
+                            const url = list.querySelectorAll('.mss-item-url')[index].value;
+                            const icon = list.querySelectorAll('.mss-item-icon')[index].src;
+                            newSearchEngines.push({name, url, icon,});
                         }
                     });
                     newSearchEngines.push(settings);
                     GM_setValue('searchEngines', newSearchEngines);
-                    selectElement('#ms-settings-panel').remove();
+                    this.panel.remove();
                     window.location.reload();
                 });
             },
             //绑定表单事件
             bindForm() {
                 //添加按钮
-                selectElement('.mss-add-btn').addEventListener('click', (e) => {    //TODO: 判断URL是否有效
+                const form = this.panel.querySelector('.mss-form')
+                form.querySelector('.mss-add-btn').addEventListener('click', (e) => {    //TODO: 判断URL是否有效
                     e.preventDefault();
-                    let url = selectElement('.mss-url-input').value;
+                    let url = form.querySelector('.mss-url-input').value;
                     let hostname = '';
                     try {
                         new RegExp('^(https:\\/\\/)').test(url) || (url = `https://${url}`);
@@ -824,14 +835,10 @@
                         alert('网址格式错误');
                         return;
                     }
-                    const name = selectElement('.mss-name-input').value;
-                    const icon = selectElement('.mss-icon-input').value || `https://icon.horse/icon/${hostname}`;
+                    const name = form.querySelector('.mss-name-input').value;
+                    const icon = form.querySelector('.mss-icon-input').value || `https://icon.horse/icon/${hostname}`;
                     if (name && url && icon) {
-                        const searchEngine = {
-                            name,
-                            url,
-                            icon,
-                        };
+                        const searchEngine = {name, url, icon,};
                         this.appendListItem(searchEngine);
                     }
                 });
@@ -848,24 +855,23 @@
                 });
             },
             //绑定图标面板事件
-            bindIconPanel(panel) {
-                panel.querySelector('.mss-icon-close').addEventListener('click', () => {
-                    panel.remove();
+            bindIconPanel() {
+                this.iconPanel.querySelector('.mss-icon-close').addEventListener('click', () => {
+                    this.iconPanel.remove();
                 });
-                panel.querySelector('.mss-icon-cancel-btn').addEventListener('click', () => {
-                    panel.remove();
+                this.iconPanel.querySelector('.mss-icon-cancel-btn').addEventListener('click', () => {
+                    this.iconPanel.remove();
                 });
-                panel.querySelector('.mss-icon-confirm-btn').addEventListener('click', () => {
-                    this.querySelector('.mss-item-icon').src = panel.querySelector('.mss-icon-input').value;
-                    // selectElementAll('#ms-settings-panel .mss-item-icon_')[index].value = iconInput.value;
-                    panel.remove();
+                this.iconPanel.querySelector('.mss-icon-confirm-btn').addEventListener('click', () => {
+                    this.iconPanel.querySelector('.mss-item-icon').src = this.iconPanel.querySelector('.mss-icon-input').value;
+                    this.iconPanel.remove();
                 });
             }
 
         },
 
         createIconPanel(item) { // TODO: 提示信息Toast
-            const panel = createElement('div', 'mss-icon-panel');
+            this.iconPanel = createElement('div', 'mss-icon-panel');
             const content = createElement('div', 'mss-icon-content');
             const title = createElement('div', 'mss-icon-title', '', '修改图标');
             const container = createElement('div', 'mss-icon-container');
@@ -877,9 +883,9 @@
             form.appendChild(iconInput);
             container.appendChild(form);
             content.appendChildren(title, container, close, cancelBtn, confirmBtn);
-            panel.appendChild(content);
-            document.body.appendChild(panel);
-            this.events.bindIconPanel.bind(item)(panel);
+            this.iconPanel.appendChild(content);
+            this.events.bindIconPanel.bind(item)();
+            document.body.appendChild(this.iconPanel);
         },
 
         addStyles() {
@@ -906,7 +912,7 @@
         },
 
         get() {
-            return this.globalStyle;
+            return createElement('style', 'ms-global-style', '', this.globalStyle);
         }
     }
 
@@ -1034,10 +1040,11 @@
 
     GM_setValue('themeColor', '#4e6ef2');
     GM_setValue('sortMode', 'off');
-    GM_addStyle(msStyle.get());
 
     const handler = getHandler();
     handler.preprocess.call();
     handler.addMSComponent.call();
     handler.addScrollListener.call();
+
+    selectElement('#ms-component').appendChild(msStyle.get());
 }());
