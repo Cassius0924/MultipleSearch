@@ -7,7 +7,7 @@
 // @name:en-UK         MultipleSearch
 // @author             Cassius0924
 // @namespace          http://tampermonkey.net/
-// @version            0.4.1
+// @version            0.5.0
 // @description        携带搜索词快捷切换搜索引擎、视频网站或博客网站。Quickly switch between search engines, video sites or blog sites with search words.
 // @description:zh-CN  携带搜索词快捷切换搜索引擎、视频网站或博客网站。
 // @description:zh-TW  攜帶搜索詞快捷切換搜索引擎、視頻網站或博客網站。
@@ -251,7 +251,7 @@
                 const div = createElement('div', 'ms-container', 'margin-left: 120px;');
                 const css = '@media screen and (min-width: 1921px) { .ms-container { width: 1055px; margin: 0 auto !important;} }\n #ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;}';
                 const style = createElement('style', '', '', css);
-                const component = msComponent.create();
+                const component = msComponent.render(div);
                 component.style = 'bottom: 8px; position: absolute;';
                 div.appendChildren(style, component);
                 head.appendChild(div);
@@ -298,10 +298,9 @@
                 head.style = 'display:flex; flex-direction: column; justify-content: center;';
                 const css = '#ms-component{--ms-margin:165px;margin-left: calc(var(--ms-margin) - 15px);} @media(prefers-color-scheme:light){#ms-component{background:#fff !important;}} @media(prefers-color-scheme:dark){.ms-item {background: #303134 !important; color:#e8eaed !important; box-shadow: none !important; box-sizing: content-box ;border: 1px solid rgb(95,99,104);} .ms-item svg path:nth-child(2){fill: #e8eaed}.mss-content, .mss-icon-content{border: 1px solid rgb(95,99,104); background-color: #202124;}.mss-icon-close svg path:nth-child(2), .mss-del-btn svg path:nth-child(2){fill: #e8eaed;}.mss-title, .mss-icon-title {color: #e8eaed; border-bottom: 1px solid rgb(95,99,104);}.mss-item {background: #303134; border: 1px solid rgb(95,99,104); box-shadow: none;}.mss-item-name, .mss-item-url, .mss-del-btn, .mss-name-input, .mss-url-input, .mss-icon-input, .mss-add-btn, .mss-icon-cancel-btn, .mss-icon-confirm-btn {background: #303134; border: 1px solid rgb(95,99,104); box-shadow: none;}}@media (max-width: 1300px) {#ms-component{--ms-margin: 28px;}}@media (min-width: 1121px) and (max-width: 1300px) {#ms-component{--ms-margin:  calc((100vw - 1065px)/2);}}\n @media (min-width: 1459px) and (max-width: 1659px) {#ms-component{--ms-margin: calc(25vw + -200px);}}\n@media (min-width: 1659px) {#ms-component{--ms-margin: 215px;}}\n#ms-component .ms-dragging {opacity: 0.5; transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s}\n#ms-component .ms-crowded {transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0s;} .pin{z-index: 1000}';
                 const style = createElement('style', '', '', css);
-                const component = msComponent.create();
+                const component = msComponent.render(head);
                 component.style = 'bottom: 8px; position: absolute; top: 60px;';
                 component.appendChild(style);
-                head.appendChild(component);
             },
             addScrollListener() {
                 window.onscroll = function () {
@@ -332,7 +331,7 @@
         bing: {
             preprocess() {
                 const head = selectElement('#b_header');
-                head.style = 'height: 0 !important; transform: translateY(-75px);z-index: 10; transition:all, 0.3s ease-in-out;';
+                head.style = '/*height: 0 !important*/; transform: translateY(-75px);z-index: 10; transition:all, 0.3s ease-in-out;';
                 const content = selectElement('#b_content');
                 content.style = 'position: relative;z-index:9; top: -70px; transition:top, 0.3s ease-in-out;';
                 const scopeBar = selectElement('.b_scopebar');
@@ -448,7 +447,7 @@
         theme: {},
         searchEngines: [],
         dragging: {},
-        element: {},
+        component: {},
 
         init() {
             this.searchEngines = GM_getValue('searchEngines');
@@ -457,31 +456,36 @@
 
         create() {
             this.init();
-            this.element = createElementWithId('div', 'ms-component');
+            this.component = createElementWithId('div', 'ms-component');
             this.searchEngines.forEach((searchEngine, index) => {
                 const item = Object.create(msItem);
                 if (index === this.searchEngines.length - 1) {
-                    this.element.appendChild(item.createSettings(searchEngine));
+                    this.component.appendChild(item.createSettings(searchEngine));
                 } else {
                     item.props = searchEngine;
-                    this.element.appendChild(item.create());
+                    this.component.appendChild(item.create());
                 }
             });
             this.bindShortcuts();
-            return this.element;
+            return this.component;
+        },
+
+        render(parentNode) {
+            parentNode.appendChildren(this.create());
+            return this.component;
         },
 
         toggle() {
             const handler = getHandler();
             handler.preToggleSortMode();
             if (GM_getValue('sortMode') === 'off') {
-                this.element.classList.add('ms-sort-mode')
+                this.component.classList.add('ms-sort-mode')
                 GM_setValue('sortMode', 'on');
             } else {
                 selectElement('#ms-component').childNodes.forEach((child) => {
                     child.style.transition = '';
                 });
-                this.element.classList.remove('ms-sort-mode')
+                this.component.classList.remove('ms-sort-mode')
                 GM_setValue('sortMode', 'off');
             }
         },
@@ -490,17 +494,8 @@
 
         },
 
-        sort() {
-
-        },
-
-        render(parentElement) {
-            const component = this.init();
-            parentElement.appendChildren(component);
-        },
-
         bindShortcuts() {
-            const texts = this.element.querySelectorAll('.ms-name');
+            const texts = this.component.querySelectorAll('.ms-name');
             const system = getSystem();
             const modifier = (system === 'mac' || system === 'ipad') ? '⌥' : 'Alt';
             let originalTexts = [];
@@ -509,7 +504,7 @@
             });
             document.body.addEventListener('keydown', (event) => {
                 if (event.altKey) {
-                    selectElement('#ms-component').classList.add('pin');
+                    this.component.classList.add('pin');
                     const len = texts.length > 9 ? 9 : texts.length;
                     [...Array(len)].forEach((_, i) => {
                         const keyCode = `Digit${i + 1}`;
@@ -525,7 +520,7 @@
             });
             document.body.addEventListener('keyup', (event) => {
                 if (!event.altKey) {
-                    selectElement('#ms-component').classList.remove('pin');
+                    this.component.classList.remove('pin');
                     texts.forEach((text, index) => {
                         text.style.width = '';
                         text.innerHTML = originalTexts[index];
@@ -594,82 +589,55 @@
                 const onDragStart = function _onDragStart(e) {
                     msComponent.dragging = e.target;
                     e.dataTransfer.effectAllowed = 'move';
-                    setTimeout(() => {
-                        e.target.parentNode.childNodes.forEach((element, index) => {
-                            if (index !== e.target.parentNode.childNodes.length - 1) {
-                                element.classList.toggle('ms-dragging', e.target === element);
-                                element.classList.toggle('ms-crowded', e.target !== element);
-                            }
-                        });
-                    }, 0);
+                    e.target.parentNode.childNodes.forEach(element => {
+                        element === e.target
+                            ? element.classList.toggle("ms-dragging")
+                            : element.classList.toggle("ms-crowded");
+                    });
                 };
                 const onDragEnd = function _onDragEnd(e) {
-                    e.target.parentNode.childNodes.forEach((element, index) => {
-                        if (index !== e.target.parentNode.childNodes.length - 1) {
-                            element.classList.toggle('ms-dragging', e.target === element);
-                            element.classList.toggle('ms-crowded', e.target !== element);
-                        }
-                    });
+                    setTimeout(() => {
+                        e.target.parentNode.childNodes.forEach(element => {
+                            element === e.target
+                                ? element.classList.toggle("ms-dragging")
+                                : element.classList.toggle("ms-crowded");
+                        });
+                    }, 0);
                 };
                 const onDrop = function _onDrop(e) {
                     if (!e.target.classList.contains('ms-dragging')) {
                         const draggingIndex = Array.prototype.indexOf.call(msComponent.dragging.parentNode.children, msComponent.dragging);
                         const targetIndex = Array.prototype.indexOf.call(this.item.parentNode.children, this.item);
-                        reorderElements(draggingIndex, targetIndex, msComponent.dragging, this.item);
-                        // const startPosition = msComponent.dragging.getBoundingClientRect();
-                        // const endPosition = e.target.getBoundingClientRect();
-                        // if (draggingIndex < targetIndex) {
-                        //     addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging, 1);
-                        //     setTimeout(() => {
-                        //         msComponent.dragging.parentNode.childNodes.forEach((element) => {
-                        //             element.style.transform = '';
-                        //         });
-                        //         this.element.parentNode.insertBefore(msComponent.dragging, this.element.nextSibling);
-                        //     }, delay);
-                        // } else {
-                        //     addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging, -1);
-                        //     setTimeout(() => {
-                        //         msComponent.dragging.parentNode.childNodes.forEach((element) => {
-                        //             element.style.transform = '';
-                        //         });
-                        //         this.element.parentNode.insertBefore(msComponent.dragging, this.element);
-                        //     }, delay);
-                        // }
-                        // updateData(draggingIndex, targetIndex);
+                        const startPosition = msComponent.dragging.getBoundingClientRect();
+                        const endPosition = this.item.getBoundingClientRect();
+                        if (draggingIndex < targetIndex) {
+                            addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging);
+                            setTimeout(() => {
+                                msComponent.dragging.parentNode.childNodes.forEach((element) => {
+                                    element.style.transform = '';
+                                });
+                                this.item.parentNode.insertBefore(msComponent.dragging, this.item.nextSibling);
+                                msComponent.bindShortcuts();
+                            }, delay);
+                        } else {
+                            addAnimation(draggingIndex, targetIndex, startPosition, endPosition, msComponent.dragging);
+                            setTimeout(() => {
+                                msComponent.dragging.parentNode.childNodes.forEach((element) => {
+                                    element.style.transform = '';
+                                });
+                                this.item.parentNode.insertBefore(msComponent.dragging, this.item);
+                                msComponent.bindShortcuts();
+                            }, delay);
+                        }
+                        updateData(draggingIndex, targetIndex);
                     }
-                };
-
-                // 插入元素
-                const reorderElements = function _reorderElements(draggingIndex, targetIndex, dragging, target) {
-                    const startPosition = dragging.getBoundingClientRect();
-                    const endPosition = target.getBoundingClientRect();
-                    if (draggingIndex < targetIndex) {
-                        addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, 1);
-                        setTimeout(() => {
-                            dragging.parentNode.childNodes.forEach((element) => {
-                                element.style.transform = '';
-                            });
-                            target.parentNode.insertBefore(dragging, target.nextSibling);
-                            msComponent.bindShortcuts();
-                        }, delay);
-                    } else {
-                        addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, -1);
-                        setTimeout(() => {
-                            dragging.parentNode.childNodes.forEach((element) => {
-                                element.style.transform = '';
-                            });
-                            target.parentNode.insertBefore(dragging, target);
-                            msComponent.bindShortcuts();
-                        }, delay);
-                    }
-                    updateData(draggingIndex, targetIndex);
                 };
 
                 // 添加动画
-                const addAnimation = function _addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging, direction) {
+                const addAnimation = function _addAnimation(draggingIndex, targetIndex, startPosition, endPosition, dragging) {
                     let deltaX = 0;
                     const component = dragging.parentNode;
-                    if (direction === 1) { // 往右
+                    if (draggingIndex < targetIndex) {  //往右
                         deltaX = endPosition.right - startPosition.right;
                         for (let i = draggingIndex + 1; i <= targetIndex; i++) {
                             const element = component.children[i];
@@ -679,7 +647,7 @@
                             element.offsetWidth;
                             element.style.transition = 'all 0s';
                         }
-                    } else if (direction === -1) {  // 往左
+                    } else {  // 往左
                         deltaX = endPosition.left - startPosition.left;
                         for (let i = targetIndex; i < draggingIndex; i++) {
                             const element = component.children[i];
@@ -707,27 +675,18 @@
                 const onClick = function _onClick() {
                     search(this.props);
                 };
-
                 this.item.onclick = onClick.bind(this);
                 this.item.ondragover = onDragOver;
                 this.item.ondragstart = onDragStart;
                 this.item.ondragend = onDragEnd;
                 this.item.ondrop = onDrop.bind(this);
             },
+            // 绑定最后一项
             bindSettings() {
                 this.item.querySelector('.ms-toggle-sort-icon').onclick = () => msComponent.toggle();
                 this.item.querySelector('.ms-plus-icon').onclick = () => msSettingsPanel.render(document.body);
             }
         }
-    }
-
-
-    const addStyles = function _addStyles(element, styles) {
-        Object.assign(element.style, styles);
-    }
-
-    function turnOffToggleSortMode() {
-        GM_getValue('sortMode') === 'on' && msComponent.toggle();
     }
 
     const msSettingsPanel = {
@@ -800,13 +759,13 @@
                 });
                 //取消按钮
                 this.panel.querySelector('.mss-icon-cancel-btn').addEventListener('click', (e) => {
-                    this.panel('#ms-settings-panel').remove();
+                    this.panel.remove();
                 });
                 //确认按钮
                 this.panel.querySelector('.mss-icon-confirm-btn').addEventListener('click', (e) => {
                     const newSearchEngines = [];
                     const settings = GM_getValue('searchEngines').pop();
-                    this.panel.querySelector('.mss-').childNodes.forEach((item, index) => {
+                    this.panel.querySelector('.mss-list').childNodes.forEach((item, index) => {
                         if (item.style.display !== 'none') {
                             const name = list.querySelectorAll('.mss-item-name')[index].value;
                             const url = list.querySelectorAll('.mss-item-url')[index].value;
@@ -827,16 +786,8 @@
                 form.querySelector('.mss-add-btn').addEventListener('click', (e) => {    //TODO: 判断URL是否有效
                     e.preventDefault();
                     let url = form.querySelector('.mss-url-input').value;
-                    let hostname = '';
-                    try {
-                        new RegExp('^(https:\\/\\/)').test(url) || (url = `https://${url}`);
-                        hostname = new URL(url).hostname;
-                    } catch (e) {
-                        alert('网址格式错误');
-                        return;
-                    }
                     const name = form.querySelector('.mss-name-input').value;
-                    const icon = form.querySelector('.mss-icon-input').value || `https://icon.horse/icon/${hostname}`;
+                    const icon = form.querySelector('.mss-icon-input').value || generateIconUrl(url);
                     if (name && url && icon) {
                         const searchEngine = {name, url, icon,};
                         this.appendListItem(searchEngine);
@@ -863,7 +814,7 @@
                     this.iconPanel.remove();
                 });
                 this.iconPanel.querySelector('.mss-icon-confirm-btn').addEventListener('click', () => {
-                    this.iconPanel.querySelector('.mss-item-icon').src = this.iconPanel.querySelector('.mss-icon-input').value;
+                    this.panel.querySelector('.mss-item-icon').src = this.iconPanel.querySelector('.mss-icon-input').value || generateIconUrl(this.panel.querySelector('.mss-item-url').value)
                     this.iconPanel.remove();
                 });
             }
@@ -876,7 +827,7 @@
             const title = createElement('div', 'mss-icon-title', '', '修改图标');
             const container = createElement('div', 'mss-icon-container');
             const form = createElement('form', 'mss-icon-form');
-            const iconInput = createInput('', 'mss-icon-input', '', this.value, '图标地址（留空自动生成）');
+            const iconInput = createInput('', 'mss-icon-input', '', this.panel.querySelector('.mss-item-icon').src, '图标地址（留空自动生成）');
             const close = createElement('div', 'mss-icon-close', '', '<svg class=\'mss-icon-editor-close-icon\' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
             const cancelBtn = createElement('button', 'mss-icon-cancel-btn', '', '取消');
             const confirmBtn = createElement('button', 'mss-icon-confirm-btn', '', '确定');
@@ -884,7 +835,7 @@
             container.appendChild(form);
             content.appendChildren(title, container, close, cancelBtn, confirmBtn);
             this.iconPanel.appendChild(content);
-            this.events.bindIconPanel.bind(item)();
+            this.events.bindIconPanel.bind(this)();
             document.body.appendChild(this.iconPanel);
         },
 
@@ -892,16 +843,6 @@
             let style = document.createElement('style');
         }
 
-    }
-
-    //Toast
-    function toast(text) {
-        const toast = createElement('div', 'mss-toast');
-        toast.innerText = text;
-        document.body.appendChild(toast);
-        setTimeout(() => {
-            toast.remove();
-        }, 2000);
     }
 
     const msStyle = {
@@ -914,6 +855,37 @@
         get() {
             return createElement('style', 'ms-global-style', '', this.globalStyle);
         }
+    }
+
+    function generateIconUrl(url) {
+        const api = 'https://icon.horse/icon/';
+        let hostname = '';
+        try {
+            new RegExp('^(https:\\/\\/)').test(url) || (url = `https://${url}`);
+            hostname = new URL(url).hostname;
+        } catch (e) {
+            alert('网址格式错误');
+            return;
+        }
+        return api + hostname;
+    }
+
+    //Toast
+    function toast(text) {
+        const toast = createElement('div', 'mss-toast');
+        toast.innerText = text;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 2000);
+    }
+
+    const addStyles = function _addStyles(element, styles) {
+        Object.assign(element.style, styles);
+    }
+
+    function turnOffToggleSortMode() {
+        GM_getValue('sortMode') === 'on' && msComponent.toggle();
     }
 
     // 展开或折叠组件
@@ -1030,7 +1002,7 @@
                 icon: 'https://icon.horse/icon/www.duckduckgo.com',
             },
             {
-                name: 'Setting',
+                name: 'Settings',
                 toggleSortIcon: '<svg class=\'ms-toggle-sort-icon\' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19"><path fill="none" d="M0 0h24v24H0z"/><path d="M16.05 12.05L21 17l-4.95 4.95-1.414-1.414 2.536-2.537L4 18v-2h13.172l-2.536-2.536 1.414-1.414zm-8.1-10l1.414 1.414L6.828 6 20 6v2H6.828l2.536 2.536L7.95 11.95 3 7l4.95-4.95z"/></svg>',
                 plusIcon: `<svg class='ms-plus-icon' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="none" d="M0 0h24v24H0z"/><path d="M2 12c0-.865.11-1.703.316-2.504A3 3 0 0 0 4.99 4.867a9.99 9.99 0 0 1 4.335-2.505 3 3 0 0 0 5.348 0 9.99 9.99 0 0 1 4.335 2.505 3 3 0 0 0 2.675 4.63c.206.8.316 1.638.316 2.503 0 .865-.11 1.703-.316 2.504a3 3 0 0 0-2.675 4.629 9.99 9.99 0 0 1-4.335 2.505 3 3 0 0 0-5.348 0 9.99 9.99 0 0 1-4.335-2.505 3 3 0 0 0-2.675-4.63C2.11 13.704 2 12.866 2 12zm4.804 3c.63 1.091.81 2.346.564 3.524.408.29.842.541 1.297.75A4.993 4.993 0 0 1 12 18c1.26 0 2.438.471 3.335 1.274.455-.209.889-.46 1.297-.75A4.993 4.993 0 0 1 17.196 15a4.993 4.993 0 0 1 2.77-2.25 8.126 8.126 0 0 0 0-1.5A4.993 4.993 0 0 1 17.195 9a4.993 4.993 0 0 1-.564-3.524 7.989 7.989 0 0 0-1.297-.75A4.993 4.993 0 0 1 12 6a4.993 4.993 0 0 1-3.335-1.274 7.99 7.99 0 0 0-1.297.75A4.993 4.993 0 0 1 6.804 9a4.993 4.993 0 0 1-2.77 2.25 8.126 8.126 0 0 0 0 1.5A4.993 4.993 0 0 1 6.805 15zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-2a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>`,
             },
@@ -1038,7 +1010,6 @@
         GM_setValue('searchEngines', searchEngines);
     }
 
-    GM_setValue('themeColor', '#4e6ef2');
     GM_setValue('sortMode', 'off');
 
     const handler = getHandler();
